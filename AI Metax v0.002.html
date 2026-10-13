@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Metax v0.002 — Aprende a tu ritmo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Sora:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#F2F4FB; --bg2:#E6EAF7; --surface:#FFFFFF; --surface2:#F7F8FD; --line:#D0D8EF;
+  --text:#121833; --muted:#4A557F;
+  --primary:#4B3FD6; --on-primary:#FFFFFF; --primary-soft:#E7E4FF;
+  --amber:#8A5600; --amber-soft:#FFEBC2;
+  --ok:#0A7650; --ok-soft:#D5F5E7; --bad:#B02E1C; --bad-soft:#FFE1DC;
+  --grid:rgba(75,63,214,.11); --shadow:0 1px 0 rgba(18,24,51,.04),0 14px 30px -20px rgba(18,24,51,.4);
+  --focus:#4B3FD6;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A0F23; --bg2:#10183A; --surface:#141C3D; --surface2:#1A244C; --line:#2A3664;
+    --text:#EEF2FF; --muted:#A8B3DA;
+    --primary:#9A91FF; --on-primary:#0A0F23; --primary-soft:#262D66;
+    --amber:#FFC15A; --amber-soft:#3A2D10;
+    --ok:#4FE3A8; --ok-soft:#0F3A2E; --bad:#FF8F80; --bad-soft:#46211D;
+    --grid:rgba(154,145,255,.11); --shadow:0 1px 0 rgba(0,0,0,.2),0 14px 30px -20px rgba(0,0,0,.8);
+    --focus:#9A91FF;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A0F23; --bg2:#10183A; --surface:#141C3D; --surface2:#1A244C; --line:#2A3664;
+  --text:#EEF2FF; --muted:#A8B3DA;
+  --primary:#9A91FF; --on-primary:#0A0F23; --primary-soft:#262D66;
+  --amber:#FFC15A; --amber-soft:#3A2D10;
+  --ok:#4FE3A8; --ok-soft:#0F3A2E; --bad:#FF8F80; --bad-soft:#46211D;
+  --grid:rgba(154,145,255,.11); --shadow:0 1px 0 rgba(0,0,0,.2),0 14px 30px -20px rgba(0,0,0,.8);
+  --focus:#9A91FF;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+[hidden]{display:none!important}
+body{
+  margin:0;min-height:100%;background-color:var(--bg);color:var(--text);
+  font:400 1rem/1.55 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background-image:radial-gradient(var(--grid) 1.1px,transparent 1.4px);background-size:26px 26px;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3{font-family:Sora,"Atkinson Hyperlegible",system-ui,sans-serif;line-height:1.2;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(1.55rem,4.2vw,2.1rem);font-weight:800}
+h2{font-size:1.2rem;font-weight:700}
+h3{font-size:1.02rem;font-weight:700}
+p{margin:0}
+a{color:var(--primary)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+h1:focus,#main:focus,.fbh:focus,.qprompt:focus{outline:none}
+.skip{position:absolute;left:-999px;top:0;background:var(--primary);color:var(--on-primary);padding:.6rem 1rem;z-index:100;border-radius:0 0 10px 0}
+.skip:focus{left:0}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* shell */
+.shell{display:grid;grid-template-columns:1fr;min-height:100%}
+.side{display:none}
+.col{min-width:0}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:.6rem;padding:.6rem 1rem;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .sp{flex:1}
+.logo{display:inline-flex;align-items:center;gap:.5rem;font:800 1.15rem Sora,sans-serif;color:var(--text);text-decoration:none}
+.logo svg{width:28px;height:28px;color:var(--primary)}
+.iconbtn{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;min-width:44px;padding:0 .8rem;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);text-decoration:none;font-weight:700;font-size:.92rem;position:relative;cursor:pointer}
+.iconbtn svg{width:20px;height:20px}
+.iconbtn .cnt{background:var(--amber-soft);color:var(--amber);border-radius:99px;padding:0 .45rem;font-size:.8rem;min-width:1.4rem;text-align:center}
+.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--on-primary);font:800 1rem Sora,sans-serif;text-decoration:none}
+main{padding:1.2rem 1rem 7rem;max-width:960px;margin:0 auto;width:100%}
+.ph{margin-bottom:1.3rem}
+.ph p{color:var(--muted);margin-top:.35rem}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:.35rem .4rem calc(.35rem + env(safe-area-inset-bottom,0px))}
+.bottom a{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.45rem .2rem;min-height:56px;border-radius:12px;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:700}
+.bottom a svg{width:24px;height:24px}
+.bottom a[aria-current="page"]{color:var(--primary);background:var(--primary-soft)}
+@media (min-width:900px){
+  .shell{grid-template-columns:250px 1fr}
+  .side{display:flex;flex-direction:column;gap:1.4rem;padding:1.4rem 1rem;position:sticky;top:env(safe-area-inset-top,0px);align-self:start;border-right:1px solid var(--line);min-height:100%}
+  .side nav{display:flex;flex-direction:column;gap:.25rem}
+  .side nav a{display:flex;align-items:center;gap:.7rem;padding:.7rem .8rem;border-radius:12px;color:var(--text);text-decoration:none;font-weight:700;min-height:46px}
+  .side nav a svg{width:22px;height:22px;color:var(--muted)}
+  .side nav a[aria-current="page"]{background:var(--primary-soft);color:var(--primary)}
+  .side nav a[aria-current="page"] svg{color:var(--primary)}
+  .side nav a:hover{background:var(--surface2)}
+  .bottom{display:none}
+  .top .logo{display:none}
+  main{padding:1.8rem 2rem 3rem}
+}
+@media (min-width:600px) and (max-width:899px){ main{padding:1.5rem 1.6rem 7rem} }
+
+/* basics */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:46px;padding:.65rem 1.15rem;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font:700 1rem "Atkinson Hyperlegible",system-ui,sans-serif;cursor:pointer;text-decoration:none;text-align:center}
+.btn:hover{border-color:var(--primary)}
+.btn.primary{background:var(--primary);color:var(--on-primary);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.lg{min-height:54px;padding:.8rem 1.6rem;font-size:1.08rem;border-radius:14px}
+.btn.sm{min-height:40px;padding:.4rem .85rem;font-size:.92rem;border-radius:10px}
+.btn.quiet{border-color:transparent;background:transparent;color:var(--primary)}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:1.1rem 1.2rem;box-shadow:var(--shadow)}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.row{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;gap:1rem;grid-template-columns:1fr}
+.grid3{display:grid;gap:.8rem;grid-template-columns:1fr}
+@media (min-width:640px){.grid2{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:repeat(3,1fr)}}
+.section{margin-top:1.8rem}
+.section>h2{margin-bottom:.8rem}
+.chip{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .7rem;border-radius:99px;background:var(--surface2);border:1px solid var(--line);font-size:.88rem;font-weight:700;color:var(--muted)}
+.chip.btnlike{cursor:pointer;min-height:40px;font:700 .95rem "Atkinson Hyperlegible",sans-serif;color:var(--text)}
+.chip.on,.chip[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.badge{display:inline-block;padding:.05rem .55rem;border-radius:8px;font-size:.8rem;font-weight:700;background:var(--amber-soft);color:var(--amber)}
+.bar{height:10px;border-radius:6px;background:var(--bg2);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;display:block;background:var(--primary);border-radius:6px}
+.bar i.p{opacity:.4}
+.sti{flex:none}
+.st-nuevo{color:var(--muted)}.st-practica{color:var(--amber)}.st-practicado{color:var(--primary)}.st-dominado{color:var(--ok)}
+.banner{border-radius:12px;padding:.7rem 1rem;margin-bottom:1rem;font-weight:700;border:1px solid var(--line);background:var(--amber-soft);color:var(--amber)}
+.hue{--h:255;background:hsl(var(--h) 70% 52% / .17);display:grid;place-items:center;border-radius:14px;width:52px;height:52px;font-size:1.6rem;flex:none}
+.link{background:none;border:0;color:var(--primary);font:700 1rem "Atkinson Hyperlegible",sans-serif;text-decoration:underline;cursor:pointer;padding:.5rem;min-height:44px}
+
+/* home */
+.hero{background:var(--primary-soft);border-color:var(--primary);display:flex;flex-direction:column;gap:.9rem}
+.hero h2{font-size:clamp(1.3rem,3.4vw,1.7rem)}
+.hero .why{color:var(--muted)}
+.mode{display:flex;flex-direction:column;gap:.35rem;text-align:left;width:100%;cursor:pointer;color:var(--text);font:inherit;text-decoration:none;padding:1rem 1.1rem}
+.mode strong{font:700 1.05rem Sora,sans-serif}
+.mode span{color:var(--muted);font-size:.93rem}
+.mode:hover{border-color:var(--primary)}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.seg label{position:relative;display:block}
+.seg input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.seg span{display:block;padding:.55rem 1rem;min-height:44px;font-weight:700;display:flex;align-items:center}
+.seg input:checked+span{background:var(--primary);color:var(--on-primary)}
+.seg input:focus-visible+span{outline:3px solid var(--focus);outline-offset:-3px}
+.route{list-style:none;margin:0;padding:0}
+.route li{position:relative;padding:.2rem 0 .2rem 3.2rem;min-height:68px}
+.route li::before{content:"";position:absolute;left:1.1rem;top:0;bottom:0;border-left:2px dashed var(--line)}
+.route li:first-child::before{top:1.5rem}
+.route li:last-child::before{bottom:calc(100% - 1.5rem)}
+.route li:only-child::before{display:none}
+.route .node{position:absolute;left:.1rem;top:.55rem;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--bg);display:grid;place-items:center}
+.route a{display:flex;flex-direction:column;gap:.1rem;padding:.55rem .9rem;border-radius:14px;text-decoration:none;color:var(--text);border:1px solid transparent}
+.route a:hover{background:var(--surface);border-color:var(--line)}
+.route .cur a{background:var(--surface);border-color:var(--primary)}
+.route .sub{color:var(--muted);font-size:.9rem}
+.subjrow{display:flex;align-items:center;gap:.9rem;padding:.8rem 0;border-top:1px solid var(--line)}
+.subjrow:first-child{border-top:0}
+.subjrow .grow{flex:1;min-width:0}
+.subjrow .grow .bar{margin:.4rem 0 .25rem}
+.trow{display:flex;align-items:center;gap:.8rem;padding:.8rem 1rem;border-radius:14px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--text);min-height:60px}
+.trow:hover{border-color:var(--primary)}
+.trow .tmain{flex:1;min-width:0;display:flex;flex-direction:column}
+.trow .sub{color:var(--muted);font-size:.9rem}
+.trow .stl{font-size:.88rem;font-weight:700;color:var(--muted)}
+.scard{display:flex;gap:1rem;align-items:center;text-decoration:none;color:var(--text)}
+.scard:hover{border-color:var(--primary)}
+.scard .grow{flex:1;min-width:0}
+.scard .bar{margin:.4rem 0 .2rem}
+.unit{margin-top:1.4rem}
+.unit>h3{margin-bottom:.6rem;color:var(--muted);font-family:"Atkinson Hyperlegible",sans-serif}
+.tiles{display:grid;gap:.7rem;grid-template-columns:repeat(2,1fr)}
+@media (min-width:640px){.tiles{grid-template-columns:repeat(4,1fr)}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem 1rem}
+.tile b{display:block;font:800 1.6rem Sora,sans-serif}
+.tile span{color:var(--muted);font-size:.9rem}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem;align-items:end;height:150px}
+.week .d{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:.25rem;font-size:.82rem;color:var(--muted)}
+.week .col2{width:100%;max-width:38px;background:var(--primary);border-radius:8px 8px 3px 3px;min-height:4px}
+.week .d.today b{color:var(--primary)}
+dl.meta{display:grid;grid-template-columns:auto 1fr;gap:.45rem 1.1rem;margin:0}
+dl.meta dt{color:var(--muted)}dl.meta dd{margin:0;font-weight:700}
+
+/* onboarding */
+.ob{min-height:100%;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+.obc{width:100%;max-width:520px;display:flex;flex-direction:column;gap:1.2rem}
+.opts{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:.6rem}
+.optc{position:relative;display:block}
+.optc input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0}
+.optc .box{display:flex;align-items:center;gap:.8rem;padding:.9rem 1rem;min-height:58px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);font-weight:700}
+.optc .box small{display:block;font-weight:400;color:var(--muted)}
+.optc .k{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.85rem;color:var(--muted)}
+.optc input:checked+.box{border-color:var(--primary);background:var(--primary-soft)}
+.optc input:checked+.box .k{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+.optc input:focus-visible+.box{outline:3px solid var(--focus);outline-offset:2px}
+.optc.good input:checked+.box{border-color:var(--ok);background:var(--ok-soft)}
+.constel{width:100%;height:auto;max-height:240px}
+.constel .path{fill:none;stroke:var(--primary);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:640;stroke-dashoffset:0}
+.constel .nd{fill:var(--bg);stroke:var(--primary);stroke-width:2.5}
+.constel text{fill:var(--muted);font:700 11px "Atkinson Hyperlegible",sans-serif}
+.constel .star{fill:var(--amber)}
+:root:not([data-motion="reduced"]) .constel .path{animation:draw 2.4s ease-out both}
+:root:not([data-motion="reduced"]) .constel .nd,:root:not([data-motion="reduced"]) .constel text,:root:not([data-motion="reduced"]) .constel .star{animation:pop .5s ease-out both}
+.constel .n1{animation-delay:.5s!important}.constel .n2{animation-delay:1.1s!important}.constel .n3{animation-delay:1.7s!important}.constel .n4{animation-delay:2.3s!important}
+@keyframes draw{from{stroke-dashoffset:640}to{stroke-dashoffset:0}}
+@keyframes pop{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+:root[data-motion="reduced"] *{animation:none!important;transition:none!important}
+
+/* session */
+.sess{max-width:720px;margin:0 auto;padding:1rem 1rem 3rem;display:flex;flex-direction:column;gap:1rem}
+.sh{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+.sh .grow{flex:1;min-width:0}
+.ftimer{font:800 1.1rem Sora,sans-serif;font-variant-numeric:tabular-nums}
+.qprompt{font:700 1.2rem/1.4 Sora,sans-serif}
+.panel{border-radius:16px;padding:1rem 1.1rem;border:1px solid var(--line);background:var(--surface)}
+.panel h3{font-family:"Atkinson Hyperlegible",sans-serif;color:var(--muted);font-size:.95rem;margin-bottom:.3rem}
+.panel.ex{background:var(--surface2)}
+.opts .box{font-weight:400}
+.inp{width:100%;min-height:52px;padding:.7rem 1rem;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font:700 1.2rem "Atkinson Hyperlegible",sans-serif}
+.inp:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+label.lbl{display:block;font-weight:700;margin-bottom:.35rem}
+.fb{border-radius:16px;padding:1rem 1.1rem;border:1.5px solid}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb .fbh{display:flex;align-items:center;gap:.5rem;font:800 1.2rem Sora,sans-serif}
+.fb.ok .fbh{color:var(--ok)}.fb.bad .fbh{color:var(--bad)}
+.fb .fbh svg{width:26px;height:26px}
+.actions{display:flex;flex-direction:column;gap:.6rem}
+@media (min-width:560px){.actions{flex-direction:row;flex-wrap:wrap}.actions .btn.primary{order:-1}}
+.qt{display:flex;align-items:center;gap:.7rem;font-weight:700;font-variant-numeric:tabular-nums}
+.qt .bar{flex:1}
+details.panel summary{cursor:pointer;font-weight:700;min-height:32px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(5.2rem + env(safe-area-inset-bottom,0px));background:var(--text);color:var(--bg);padding:.7rem 1.1rem;border-radius:12px;font-weight:700;z-index:60;max-width:90%;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.on{opacity:1}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--text);padding:1.3rem;max-width:min(92vw,460px);width:100%}
+dialog::backdrop{background:rgba(5,8,22,.6)}
+dialog h2{margin-bottom:.6rem}
+dialog textarea{width:100%;min-height:160px;font:.8rem monospace;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:.6rem}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0;border-top:1px solid var(--line);min-height:56px}
+.toggle:first-of-type{border-top:0}
+.toggle input{width:24px;height:24px;accent-color:var(--primary);flex:none}
+.field{display:flex;flex-direction:column;gap:.35rem}
+.field select{min-height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);padding:0 .8rem;font:700 1rem "Atkinson Hyperlegible",sans-serif}
+.boot{min-height:100vh;display:grid;place-items:center;color:var(--muted);font-weight:700}
+.empty{text-align:center;padding:2rem 1rem;display:flex;flex-direction:column;align-items:center;gap:.8rem}
+.empty .big{font-size:2.4rem}
+.resbig{font:800 2.2rem Sora,sans-serif}
+/* ---- Metax v0.002 ---- */
+.orb{flex:none;display:block;overflow:visible}
+.orb .halo{fill:none;stroke:hsl(var(--mh) 70% 52%);stroke-width:1.6;opacity:.55;transform-box:fill-box;transform-origin:center}
+.orb .ring{fill:none;stroke:hsl(var(--mh) 75% 55%);stroke-width:1.8;opacity:.85}
+:root:not([data-motion="reduced"]) .orb[data-st="welcome"]{animation:orbin .7s ease-out both}
+:root:not([data-motion="reduced"]) .orb[data-st="success"] .halo{animation:orbpulse .7s ease-out 1 both}
+:root:not([data-motion="reduced"]) .orb[data-st="hint"] .halo{animation:orbexp .8s ease-out 1 both}
+@keyframes orbin{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
+@keyframes orbpulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.22);opacity:.3}}
+@keyframes orbexp{from{transform:scale(.85);opacity:.2}to{transform:scale(1.08);opacity:.75}}
+.mx{display:flex;gap:1rem;align-items:flex-start}
+.mx .mxb{flex:1;min-width:0;display:flex;flex-direction:column;gap:.55rem}
+.mx h2{font-size:1.15rem}
+.mx.ok{border-color:var(--ok);background:var(--ok-soft)}
+.mx.warm{border-color:var(--amber);background:var(--amber-soft)}
+.card .card.mx{box-shadow:none;background:var(--surface2)}
+.optc input:disabled+.box{opacity:.55}
+.optc input:disabled{cursor:not-allowed}
+@media (max-width:480px){.mx{gap:.7rem}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<div id="app"><div class="boot" role="status">Preparando tu ruta…</div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="live" class="sr" role="status" aria-live="polite" aria-atomic="true"></div>
+<dialog id="dlg" aria-labelledby="dlgt"></dialog>
+
+<script>
+'use strict';
+/* =====================================================================
+   DATOS DEL CATÁLOGO (separados de la presentación)
+   Todo el contenido es DEMO: sin validación docente ni indicador oficial
+   confirmado. Para publicar contenido oficial, extraer y verificar contra
+   el programa MINEDUCYT vigente y cambiar estado_de_revision.
+   ===================================================================== */
+const GRADES=[
+ {id:'7',label:'7.º grado',short:'7.º grado'},
+ {id:'8',label:'8.º grado',short:'8.º grado'},
+ {id:'9',label:'9.º grado',short:'9.º grado'},
+ {id:'b1',label:'1.º de bachillerato',short:'1.º bachillerato'},
+ {id:'b2',label:'2.º de bachillerato',short:'2.º bachillerato'}
+];
+const SUBJECTS={
+ lyl:{name:'Lengua y Literatura',ic:'📖',h:330,url:'https://www.mined.gob.sv/lengua-y-literatura/'},
+ mat:{name:'Matemática',ic:'📐',h:255,url:'https://www.mined.gob.sv/esmate/'},
+ cyt:{name:'Ciencia y Tecnología',ic:'🔬',h:165,url:'https://www.mined.gob.sv/ciencia-educativa/'},
+ cyv:{name:'Ciudadanía y Valores',ic:'🏛️',h:35,url:'https://www.mined.gob.sv/ciudadania-y-valores/'},
+ ing:{name:'Inglés',ic:'🌐',h:200,url:null},
+ edf:{name:'Educación Física',ic:'🏃',h:10,url:null},
+ cc:{name:'Ciencias de la Computación',ic:'💻',h:215,url:'https://www.mined.gob.sv/activa-piensa-y-actua/',n2025:true},
+ fye:{name:'Finanzas y Economía',ic:'💵',h:120,url:'https://www.mined.gob.sv/finanzas-y-economia/',n2025:true},
+ pvc:{name:'Proyecto de Vida y Carrera',ic:'🧭',h:290,url:'https://www.mined.gob.sv/proyecto-de-vida-y-carrera/',n2025:true}
+};
+const BASE_SUBJ={
+ '7':['lyl','mat','cyt','cyv','ing','edf'],'8':['lyl','mat','cyt','cyv','ing','edf'],'9':['lyl','mat','cyt','cyv','ing','edf'],
+ 'b1':['lyl','mat','cyt','ing','edf'],'b2':['lyl','mat','cyt','ing','edf']
+};
+const NEW2025=['cc','fye','pvc'];
+
+const mcq=(p,o,a,e,h)=>({type:'mcq',p,o,a,e,h});
+const inp=(p,accept,e,h)=>({type:'input',p,accept,e,h});
+const C=(t,idea,ejemplo,q)=>({t,idea,ejemplo,q});
+const TP=(id,grados,subject,unit,topic,skill,diff,minutes,cards)=>({
+  id,pais:'SV',version_curricular:'por verificar',sector_modalidad:'por definir',
+  grados,subject,unit,topic,habilidad:skill,indicador_de_logro:null,
+  tipo_de_actividad:'microlección + práctica',nivel_de_dificultad:diff,duracion_estimada:minutes,
+  fuente_oficial_url:SUBJECTS[subject].url,estado_de_revision:'demo',cards
+});
+
+const CATALOGO={version:'demo-0.1',topics:[
+ /* ---- 2.º bachillerato ---- */
+ TP('mat-b2-sa',['b2'],'mat','Sucesiones','Sucesiones aritméticas','Calcular términos de una sucesión aritmética',2,4,[
+  C('Término general','Una sucesión aritmética suma siempre la misma cantidad, llamada diferencia (d). El término n se calcula con aₙ = a₁ + (n − 1)·d.','En 3, 7, 11, 15… la diferencia es 4. El término 6 es 3 + 5·4 = 23.',
+    inp('¿Cuál es el término 10 de la sucesión 3, 7, 11, 15…?',['39'],'a₁ = 3 y d = 4. Entonces a₁₀ = 3 + (10 − 1)·4 = 3 + 36 = 39.','Primero halla d restando dos términos seguidos.')),
+  C('Diferencia común','Para hallar d, resta un término al siguiente: d = a₂ − a₁. Si d es negativa, la sucesión decrece.','En 50, 45, 40… la diferencia es −5, como una cuenta regresiva de 5 en 5.',
+    mcq('¿Cuál es la diferencia de la sucesión 20, 17, 14, 11…?',['3','−3','17','−17'],1,'17 − 20 = −3. Cada término es 3 unidades menor que el anterior.','Resta el segundo término menos el primero.'))
+ ]),
+ TP('mat-b2-sg',['b2'],'mat','Sucesiones','Sucesiones geométricas','Aplicar la razón de una sucesión geométrica',2,3,[
+  C('Razón y términos','Una sucesión geométrica multiplica siempre por la misma razón (r). El término n es aₙ = a₁·rⁿ⁻¹.','En 2, 6, 18, 54… la razón es 3. Un video que se comparte con 3 personas por ronda crece así.',
+    inp('¿Cuál es el 5.º término de 2, 6, 18, 54…?',['162'],'La razón es 3. El 5.º término es 54 × 3 = 162, o también 2·3⁴ = 162.','Multiplica el último término por la razón.'))
+ ]),
+ TP('mat-b2-pr',['b2'],'mat','Conteo y probabilidad','Probabilidad y conteo básico','Calcular probabilidades simples y usar el principio de multiplicación',2,5,[
+  C('Probabilidad simple','La probabilidad de un evento es casos favorables ÷ casos posibles, cuando todos son igualmente probables. Va de 0 a 1.','Al lanzar un dado, P(par) = 3/6 = 1/2, porque hay tres pares: 2, 4 y 6.',
+    mcq('Una bolsa tiene 3 fichas rojas y 5 azules. ¿Cuál es la probabilidad de sacar una roja?',['3/5','3/8','5/8','1/3'],1,'Hay 3 casos favorables de 8 posibles: 3/8.','Cuenta cuántas fichas hay en total.')),
+  C('Principio de multiplicación','Si una decisión tiene m formas y otra tiene n formas, juntas tienen m × n formas posibles.','Con 3 camisetas y 4 pantalones se forman 3 × 4 = 12 combinaciones.',
+    inp('Una pupusería ofrece 4 rellenos y 2 tipos de masa (maíz o arroz). ¿Cuántas pupusas distintas se pueden pedir?',['8'],'4 rellenos × 2 masas = 8 combinaciones.','Multiplica las opciones de cada decisión.'))
+ ]),
+ TP('lyl-b2-pp',['b2'],'lyl','Literatura precolombina','Popol Vuh y tradición oral','Reconocer obras y origen de la literatura precolombina',1,4,[
+  C('Un libro sagrado','El Popol Vuh es un libro sagrado del pueblo maya k\'iche\'. Reúne mitos de la creación, relatos de héroes y la historia de su linaje.','Narra, por ejemplo, las aventuras de los hermanos Hunahpú e Ixbalanqué.',
+    mcq('¿A qué pueblo se asocia el Popol Vuh?',['Maya k\'iche\'','Azteca (mexica)','Inca','Lenca'],0,'El Popol Vuh pertenece a la tradición maya k\'iche\'.','Piensa en la región de Guatemala.')),
+  C('Transmisión oral','Muchas culturas precolombinas transmitían su literatura de forma oral. Después, varios textos se pusieron por escrito con alfabeto latino durante la Colonia.','El Popol Vuh que hoy leemos se conserva gracias a una transcripción de ese tipo.',
+    mcq('¿Qué permitió que muchos textos precolombinos llegaran hasta hoy?',['La imprenta indígena anterior a la conquista','La transmisión oral y las transcripciones posteriores','Su publicación en periódicos modernos','Las traducciones automáticas'],1,'La tradición oral y las transcripciones hechas luego conservaron muchas obras.'))
+ ]),
+ TP('lyl-b2-en',['b2'],'lyl','Ensayo y discurso persuasivo','El ensayo y su tesis','Identificar la tesis y la estructura de un ensayo',2,3,[
+  C('Tesis y estructura','El ensayo es un texto en prosa donde el autor defiende una postura con argumentos. Tiene introducción, desarrollo y conclusión.','Tesis: «Las pausas activas mejoran la concentración». Cada párrafo aporta una razón que la sostiene.',
+    mcq('¿Qué es la tesis de un ensayo?',['Un resumen de la bibliografía','La idea principal que el autor defiende','El título de la portada','Solo la conclusión final'],1,'La tesis es la postura central que el ensayo busca demostrar con argumentos.'))
+ ]),
+ TP('lyl-b2-dp',['b2'],'lyl','Ensayo y discurso persuasivo','Discurso persuasivo','Reconocer recursos persuasivos',2,3,[
+  C('Ethos, pathos y logos','Un discurso persuasivo busca convencer. Aristóteles describió tres recursos: ethos (credibilidad), pathos (emoción) y logos (razón).','Citar datos y estadísticas apela al logos; contar una historia conmovedora apela al pathos.',
+    mcq('Un orador cuenta una historia que conmueve a la audiencia. ¿Qué recurso usa?',['Logos','Ethos','Pathos','Tesis'],2,'Apelar a las emociones es pathos.','Piensa en la palabra «emoción».'))
+ ]),
+ TP('cyt-b2-ge',['b2'],'cyt','Genética y evolución','Herencia y ADN','Interpretar cruces simples y la complementariedad del ADN',2,5,[
+  C('Alelos y cuadros de Punnett','Cada característica depende de pares de alelos. El dominante (A) se expresa si está presente; el recesivo (a) solo si hay dos copias.','En un cruce Aa × Aa salen AA, Aa, Aa y aa: 3 de 4 muestran el rasgo dominante.',
+    inp('En un cruce Aa × Aa, ¿qué porcentaje de la descendencia es aa?',['25','25%'],'Hay 1 cuadro aa de 4 posibles: 25 %.','Dibuja el cuadro de 2 × 2.')),
+  C('Bases del ADN','El ADN usa cuatro bases que siempre se emparejan igual: adenina con timina (A–T) y citosina con guanina (C–G).','Si una hebra dice A-C-G-T, la complementaria es T-G-C-A.',
+    mcq('¿Cuál es la base complementaria de la guanina (G) en el ADN?',['Adenina','Timina','Citosina','Uracilo'],2,'La guanina siempre se empareja con la citosina.'))
+ ]),
+ TP('cyt-b2-ss',['b2'],'cyt','Sistema solar','Planetas del sistema solar','Clasificar los planetas por su composición',1,3,[
+  C('Rocosos y gigantes','El sistema solar tiene ocho planetas. Los cuatro interiores (Mercurio, Venus, Tierra y Marte) son rocosos. Júpiter y Saturno son gigantes gaseosos; Urano y Neptuno, gigantes helados.','Júpiter es el planeta más grande: en su volumen cabrían más de mil Tierras.',
+    mcq('¿Cuál de estos planetas es un gigante gaseoso?',['Marte','Venus','Saturno','Mercurio'],2,'Saturno, igual que Júpiter, es un gigante gaseoso. Los otros tres son rocosos.'))
+ ]),
+ TP('cyt-b2-ec',['b2'],'cyt','Ecología y ambiente','Cadenas tróficas','Identificar productores y consumidores',1,3,[
+  C('Flujo de energía','En una cadena trófica la energía pasa de los productores (fabrican su alimento) a los consumidores y, al final, a los descomponedores.','Pasto → saltamontes → rana → culebra. El pasto es el productor.',
+    mcq('En la cadena «maíz → ratón → lechuza», ¿cuál es el productor?',['Ratón','Lechuza','Maíz','Ninguno'],2,'El maíz es una planta: produce su propio alimento con la luz del sol.'))
+ ]),
+ /* ---- 1.º bachillerato ---- */
+ TP('mat-b1-fu',['b1'],'mat','Funciones','Evaluar funciones','Sustituir valores en una función',2,4,[
+  C('Evaluar f(x)','Una función asigna a cada valor de x exactamente un valor de y. Evaluar es sustituir x por un número.','Si f(x) = 2x + 1, entonces f(3) = 2·3 + 1 = 7.',
+    inp('Si f(x) = 3x − 2, ¿cuánto vale f(4)?',['10'],'f(4) = 3·4 − 2 = 12 − 2 = 10.','Sustituye x por 4.')),
+  C('Funciones con potencias','Al sustituir en una potencia usa paréntesis: en x², f(−2) significa (−2)² = 4.','Si g(x) = x² − 1, entonces g(3) = 9 − 1 = 8.',
+    inp('Si f(x) = x² − 1, ¿cuánto vale f(−2)?',['3'],'(−2)² = 4 y 4 − 1 = 3.','Eleva al cuadrado primero.'))
+ ]),
+ TP('mat-b1-es',['b1'],'mat','Estadística descriptiva','Media, mediana y moda','Calcular medidas de tendencia central',1,4,[
+  C('Media y mediana','La media es la suma de los datos dividida entre cuántos son. La mediana es el dato central cuando están ordenados.','Con 4, 6, 6, 8, 11: media = 35 ÷ 5 = 7 y mediana = 6.',
+    inp('¿Cuál es la media de 5, 7, 9, 11 y 13?',['9'],'La suma es 45 y hay 5 datos: 45 ÷ 5 = 9.')),
+  C('La moda','La moda es el dato que más se repite. Puede haber más de una moda o ninguna.','En 2, 3, 3, 5, 9 la moda es 3.',
+    mcq('¿Cuál es la moda de 1, 4, 4, 4, 7, 9?',['1','4','5','7'],1,'El 4 aparece tres veces, más que cualquier otro dato.'))
+ ]),
+ TP('mat-b1-de',['b1'],'mat','Desigualdades','Desigualdades lineales','Resolver desigualdades de primer grado',2,3,[
+  C('Resolver una desigualdad','Se resuelve como una ecuación, pero si multiplicas o divides entre un número negativo, el signo de la desigualdad se invierte.','2x + 3 > 11 → 2x > 8 → x > 4.',
+    mcq('Resuelve: 3x − 5 ≤ 10',['x ≤ 5','x ≥ 5','x ≤ 15','x ≤ 3'],0,'3x ≤ 15, así que x ≤ 5. No dividimos entre un negativo, el signo no cambia.'))
+ ]),
+ /* ---- 7.º a 9.º (ubicación de grado por validar) ---- */
+ TP('mat-7-fr',['7'],'mat','Fracciones y porcentajes','Sumar fracciones','Sumar fracciones con distinto denominador',1,3,[
+  C('Denominador común','Para sumar fracciones con distinto denominador, busca un denominador común y suma los numeradores.','1/2 + 1/4 = 2/4 + 1/4 = 3/4.',
+    inp('Calcula 2/3 + 1/6.',['5/6'],'2/3 = 4/6, y 4/6 + 1/6 = 5/6.','Convierte 2/3 a sextos.'))
+ ]),
+ TP('mat-7-po',['7'],'mat','Fracciones y porcentajes','Porcentajes','Calcular el porcentaje de una cantidad',1,3,[
+  C('Porcentaje de una cantidad','Un porcentaje es una fracción de 100. Para hallar el 20 % de una cantidad, multiplícala por 0,20.','El 10 % de 80 es 8; el 20 % de 80 es 16.',
+    inp('Una camisa de $30 tiene 20 % de descuento. ¿Cuántos dólares descuentan?',['6','6.00'],'30 × 0,20 = 6. El descuento es de $6.','Multiplica 30 por 0,20.'))
+ ]),
+ TP('cyt-7-mc',['7'],'cyt','Indagación científica','El método científico','Formular hipótesis y diseñar pruebas',1,3,[
+  C('Del problema a la conclusión','El método científico parte de una pregunta, propone una hipótesis, la prueba con experimentos y comunica los resultados.','Pregunta: ¿las plantas crecen mejor con más luz? Hipótesis: sí. Experimento: una planta con luz y otra en sombra.',
+    mcq('¿Qué es una hipótesis?',['Una respuesta tentativa que se puede comprobar','Un dato ya demostrado','Una opinión que no se puede probar','El resultado final'],0,'Es una explicación posible que se somete a prueba con experimentos u observaciones.'))
+ ]),
+ TP('ing-7-ps',['7'],'ing','Present simple','Present simple: rutinas','Usar el present simple para hábitos',1,3,[
+  C('Hábitos y rutinas','Usa el present simple para hábitos y rutinas. Con he, she e it, el verbo termina en -s.','I study every day. She studies every day.',
+    mcq('She ___ to school by bus.',['go','goes','going','gone'],1,'Con «she» el verbo lleva -s: she goes.'))
+ ]),
+ TP('cyv-7-cp',['7'],'cyv','Convivencia','Resolver conflictos con diálogo','Aplicar estrategias de convivencia pacífica',1,3,[
+  C('Dialogar para acordar','Un conflicto se resuelve mejor dialogando: escuchar, decir lo que sientes sin ofender y buscar un acuerdo.','Dos compañeros discuten por un material y acuerdan turnos para usarlo.',
+    mcq('¿Cuál es una forma pacífica de resolver un conflicto?',['Dialogar y buscar un acuerdo','Gritar más fuerte','Evitar hablar siempre','Burlarse de la otra persona'],0,'El diálogo con escucha respetuosa permite llegar a acuerdos.'))
+ ]),
+ TP('edf-7-af',['7','9','b1','b2'],'edf','Salud y actividad física','Actividad física y salud','Reconocer recomendaciones de actividad física',1,3,[
+  C('Cuánto moverse','La OMS recomienda que niñas, niños y adolescentes hagan, en promedio, al menos 60 minutos diarios de actividad física de intensidad moderada a vigorosa.','Caminar rápido al colegio, jugar baloncesto o subir escaleras suman minutos.',
+    inp('Según la OMS, ¿cuántos minutos diarios (como mínimo y en promedio) de actividad moderada a vigorosa se recomiendan para adolescentes?',['60'],'La recomendación es de al menos 60 minutos al día en promedio.'))
+ ]),
+ TP('mat-8-pd',['8'],'mat','Proporcionalidad','Proporcionalidad directa','Resolver problemas con regla de tres',1,3,[
+  C('Regla de tres','Dos magnitudes son directamente proporcionales si al duplicar una, la otra también se duplica. Se resuelven con regla de tres.','Si 3 cuadernos cuestan $6, 1 cuaderno cuesta $2 y 5 cuestan $10.',
+    inp('Si 4 pupusas cuestan $2, ¿cuántos dólares cuestan 10 pupusas?',['5','5.00'],'Cada pupusa cuesta $0,50. Entonces 10 pupusas cuestan 10 × 0,50 = $5.','Halla primero el precio de una.'))
+ ]),
+ TP('cyv-8-dd',['8'],'cyv','Participación y derechos','Derechos y deberes','Distinguir derechos y deberes en la vida diaria',1,3,[
+  C('Derechos con responsabilidad','Los derechos nos protegen y los deberes aseguran la convivencia. Ejercer un derecho no debe vulnerar el de otra persona.','Tu derecho a opinar convive con el deber de escuchar a los demás.',
+    mcq('¿Cuál es un ejemplo de deber ciudadano?',['Respetar las normas de convivencia','Ignorar los acuerdos','Opinar sin escuchar','Evitar participar siempre'],0,'Respetar las normas ayuda a que todos puedan ejercer sus derechos.'))
+ ]),
+ TP('edf-8-ca',['8'],'edf','Salud y actividad física','Calentamiento antes de ejercitarse','Planificar un calentamiento básico',1,3,[
+  C('Preparar el cuerpo','El calentamiento sube poco a poco la temperatura y la frecuencia cardíaca, y prepara músculos y articulaciones. Dura de 5 a 10 minutos.','Trote suave, movilidad de hombros y estiramientos dinámicos antes de jugar fútbol.',
+    mcq('¿Para qué sirve principalmente el calentamiento?',['Preparar el cuerpo y reducir el riesgo de lesiones','Cansarte antes de la clase','Reemplazar el ejercicio','Aprender las reglas del deporte'],0,'Prepara el cuerpo para el esfuerzo y ayuda a prevenir lesiones.'))
+ ]),
+ TP('lyl-8-ip',['8'],'lyl','Comprensión lectora','Idea principal e ideas secundarias','Distinguir la idea principal de las secundarias',1,3,[
+  C('Lo esencial de un texto','La idea principal es lo más importante que dice un texto. Las ideas secundarias la explican o la apoyan.','En un párrafo sobre reciclaje: principal «Reciclar reduce la basura»; secundarias: ejemplos de materiales reciclables.',
+    mcq('¿Qué función tienen las ideas secundarias?',['Apoyar o explicar la idea principal','Reemplazar el título','Contradecir siempre al autor','Resumir toda la obra'],0,'Desarrollan, ejemplifican o sostienen la idea principal.'))
+ ]),
+ TP('mat-9-ec',['9'],'mat','Ecuaciones','Ecuaciones lineales','Resolver ecuaciones de primer grado',1,3,[
+  C('Despejar x','Resolver una ecuación es hallar el valor de x que cumple la igualdad. Haz la misma operación en ambos lados.','2x + 5 = 17 → 2x = 12 → x = 6.',
+    inp('Resuelve 3x − 4 = 11.',['5'],'3x = 15, entonces x = 5.','Suma 4 en ambos lados.'))
+ ]),
+ TP('cyt-9-ce',['9'],'cyt','La célula','La célula, unidad de la vida','Diferenciar células eucariotas y procariotas',2,3,[
+  C('Eucariotas y procariotas','Todos los seres vivos están formados por células. Las eucariotas tienen núcleo con membrana; las procariotas, como las bacterias, no.','Una célula de tu piel es eucariota; una bacteria del yogur es procariota.',
+    mcq('¿Qué distingue a una célula eucariota?',['Tiene un núcleo con membrana','No tiene ADN','Siempre es más pequeña que una bacteria','No tiene membrana plasmática'],0,'El núcleo delimitado por membrana es la característica de las eucariotas.'))
+ ]),
+ TP('lyl-9-tn',['9'],'lyl','Texto narrativo','Elementos del texto narrativo','Reconocer partes de una narración',1,3,[
+  C('Narrador, personajes y trama','Un texto narrativo tiene narrador, personajes, ambiente y una trama con planteamiento, nudo y desenlace.','En un cuento narrado en primera persona, el narrador dice «yo».',
+    mcq('¿Qué parte de la trama desarrolla el conflicto principal?',['Planteamiento','Nudo','Desenlace','Título'],1,'El nudo es donde el conflicto crece y se complica.'))
+ ]),
+ TP('cyv-9-dr',['9'],'cyv','Dinámica social y económica','Decisiones responsables','Analizar consecuencias antes de decidir',1,3,[
+  C('Pensar antes de decidir','Decidir con responsabilidad implica identificar opciones, pensar en las consecuencias para ti y para otras personas, y elegir con información.','Antes de compartir un rumor en redes, piensas quién podría salir afectado.',
+    mcq('¿Qué haces primero al tomar una decisión importante?',['Identificar opciones y consecuencias','Elegir lo más rápido posible','Copiar lo que hace el grupo','Esperar sin decidir'],0,'Conocer las opciones y sus consecuencias permite decidir mejor.'))
+ ]),
+ /* ---- bachillerato 1.º y 2.º: inglés ---- */
+ TP('ing-b-pp',['b1','b2'],'ing','Tiempos verbales','Present perfect','Formar y usar el present perfect',2,3,[
+  C('have/has + participio','El present perfect se forma con have o has + participio pasado. Conecta el pasado con el presente.','I have studied English for two years.',
+    mcq('He ___ his homework already.',['have finished','has finished','finished has','is finish'],1,'Con «he» usamos has + participio: he has finished.'))
+ ]),
+ /* ---- Asignaturas incorporadas en 2025 (solo si el centro las habilita) ---- */
+ TP('cc-b-al',['b1','b2'],'cc','Pensamiento computacional','Algoritmos','Describir un procedimiento como algoritmo',1,3,[
+  C('Pasos ordenados','Un algoritmo es una secuencia ordenada de pasos para resolver un problema.','Una receta de pupusas es un algoritmo: ingredientes, masa, relleno, cocción.',
+    mcq('¿Qué caracteriza a un buen algoritmo?',['Pasos claros y ordenados','Pasos al azar','Que no tenga resultado','Tener siempre un solo paso'],0,'Un algoritmo debe ser claro, ordenado y llevar a un resultado.'))
+ ]),
+ TP('fye-b-pp',['b1','b2'],'fye','Educación financiera','Presupuesto personal','Comparar ingresos y gastos',1,3,[
+  C('Ingresos y gastos','Un presupuesto compara lo que ingresa con lo que gastas. Ahorrar primero crea un fondo para metas y emergencias.','Si recibes $20 a la semana: $12 en gastos, $3 de ahorro y $5 libres.',
+    inp('Con ingresos de $50 y gastos de $35, ¿cuánto puedes ahorrar como máximo?',['15','15.00'],'$50 − $35 = $15.'))
+ ]),
+ TP('pvc-b-me',['b1','b2'],'pvc','Metas personales','Metas específicas y medibles','Formular metas claras',1,3,[
+  C('Metas que se pueden cumplir','Una meta es más alcanzable si es específica, medible, realista, relevante y tiene fecha.','En vez de «estudiar más»: «practicar 15 minutos de matemática, 4 días por semana, durante un mes».',
+    mcq('¿Cuál meta es más específica y medible?',['Ser mejor estudiante','Leer 10 páginas diarias durante 3 semanas','Estudiar algún día','Tener éxito'],1,'Indica cantidad, frecuencia y plazo; así puedes comprobar si la cumpliste.'))
+ ])
+]};
+const TOPICS=CATALOGO.topics;
+const TOPIC=Object.fromEntries(TOPICS.map(t=>[t.id,t]));
+
+/* =====================================================================
+   UTILIDADES
+   ===================================================================== */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const dkey=(d=new Date())=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return dkey(d)};
+const now=()=>Date.now();
+const DAY=864e5;
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=s=>Math.floor(s/60)+':'+pad(s%60);
+const ck=(tid,ci)=>tid+'#'+ci;
+
+/* =====================================================================
+   ESTADO PERSISTENTE
+   ===================================================================== */
+const KEY='aimetax.v1';
+let storageOk=true;
+function defaults(){return{
+ v:1,
+ profile:{name:'',grade:null,goal:null,level:null,dailyMin:15,mod2025:false,onboardStep:0,onboarded:false},
+ prefs:{theme:'auto',reduceMotion:false,sound:false,gamif:true,energy:true,timer:false,orb:true},
+ cards:{},review:{},xp:0,days:{},streak:{cur:0,best:0,last:null},energy:null,lastVisit:null,metax:{lastWelcome:null}
+}}
+function load(){
+ let raw=null;
+ try{raw=localStorage.getItem(KEY)}catch(e){storageOk=false;return defaults()}
+ if(!raw)return defaults();
+ try{
+  const o=JSON.parse(raw),d=defaults();
+  return Object.assign(d,o,{profile:Object.assign(d.profile,o.profile||{}),prefs:Object.assign(d.prefs,o.prefs||{})});
+ }catch(e){return defaults()}
+}
+let S=load();
+function save(){
+ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){
+  if(storageOk){storageOk=false;render();}
+ }
+}
+const UI={sess:null,result:null,filter:'todos',routeSubject:null,focus:null};
+
+/* =====================================================================
+   LÓGICA DE CURRÍCULO, DOMINIO Y REPASO
+   ===================================================================== */
+function subjectsFor(g){
+ if(!g)return[];
+ const base=BASE_SUBJ[g].slice();
+ if((g==='b1'||g==='b2')&&S.profile.mod2025)NEW2025.forEach(k=>base.push(k));
+ return base;
+}
+function topicsFor(g,subject){
+ const subs=subjectsFor(g);
+ return TOPICS.filter(t=>t.grados.includes(g)&&subs.includes(t.subject)&&(!subject||t.subject===subject));
+}
+const gradeLabel=id=>(GRADES.find(g=>g.id===id)||{}).label||'';
+const masteredCard=x=>!!x&&new Set(x.sessOk||[]).size>=2&&!!x.lastOk;
+function topicState(t){
+ const cs=t.cards.map((c,i)=>S.cards[ck(t.id,i)]);
+ if(!cs.some(x=>x&&x.seen>0))return'nuevo';
+ if(cs.every(masteredCard))return'dominado';
+ if(cs.every(x=>x&&x.ok>0))return'practicado';
+ return'practica';
+}
+const STATE={nuevo:{l:'Nuevo'},practica:{l:'En práctica'},practicado:{l:'Practicado'},dominado:{l:'Dominado'}};
+function stIcon(s){
+ const ring='<circle cx="11" cy="11" r="8.5" fill="none" stroke="currentColor" stroke-width="2"/>';
+ let x='';
+ if(s==='practica')x='<path d="M11 2.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/>';
+ if(s==='practicado')x='<circle cx="11" cy="11" r="8.5" fill="currentColor"/>';
+ if(s==='dominado')x='<circle cx="11" cy="11" r="8.5" fill="currentColor"/><path d="M7 11.3l3 3 5-6" fill="none" stroke="var(--bg)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>';
+ return'<svg class="sti st-'+s+'" viewBox="0 0 22 22" width="22" height="22" aria-hidden="true">'+ring+x+'</svg>';
+}
+function topicAcc(t){
+ let s=0,o=0;t.cards.forEach((c,i)=>{const x=S.cards[ck(t.id,i)];if(x){s+=x.seen;o+=x.ok}});
+ return s?o/s:null;
+}
+function topicTs(t){return Math.max(0,...t.cards.map((c,i)=>(S.cards[ck(t.id,i)]||{}).last||0))}
+function practicedCount(t){return t.cards.filter((c,i)=>(S.cards[ck(t.id,i)]||{}).ok>0).length}
+function subjectStats(g,sub){
+ const ts=topicsFor(g,sub),st={nuevo:0,practica:0,practicado:0,dominado:0};
+ ts.forEach(t=>st[topicState(t)]++);
+ return{total:ts.length,st};
+}
+const IV=[10*60e3,DAY,3*DAY,7*DAY];
+function reviewAll(){
+ const vis=new Set(topicsFor(S.profile.grade).map(t=>t.id));
+ return Object.entries(S.review).map(([k,v])=>{const p=k.split('#');return{key:k,tid:p[0],ci:+p[1],due:v.due,box:v.box}}).filter(x=>vis.has(x.tid)&&TOPIC[x.tid]&&TOPIC[x.tid].cards[x.ci]);
+}
+const readyReview=()=>reviewAll().filter(x=>x.due<=now()).sort((a,b)=>a.due-b.due);
+function reviewUpdate(key,ok){
+ const r=S.review[key];
+ if(!ok){if(r)S.review[key]={box:0,due:now()+IV[0]};return}
+ if(r){const nb=r.box+1;if(nb>=IV.length)delete S.review[key];else S.review[key]={box:nb,due:now()+IV[nb]}}
+}
+function minutesToday(){return((S.days[dkey()]||{}).sec||0)/60}
+function touchStreak(){
+ const t=dkey(),st=S.streak;
+ if(st.last===t)return;
+ st.cur=(st.last===ago(1))?st.cur+1:1;
+ st.best=Math.max(st.best,st.cur);st.last=t;
+}
+const streakNow=()=>(S.streak.last===dkey()||S.streak.last===ago(1))?S.streak.cur:0;
+const level=()=>Math.floor(S.xp/100)+1;
+
+function recommend(){
+ const g=S.profile.grade,ts=topicsFor(g);
+ if(!ts.length)return null;
+ const goal=S.profile.goal,ready=readyReview(),lv=S.profile.level;
+ if(ready.length&&(ready.length>=3||goal==='reinforce'||goal==='exam'))
+  return{kind:'review',n:ready.length,reason:'Tienes '+ready.length+(ready.length===1?' concepto listo':' conceptos listos')+' para repasar, y repasar a tiempo ayuda a recordar.'};
+ const prog=ts.filter(t=>topicState(t)==='practica').sort((a,b)=>topicTs(b)-topicTs(a))[0];
+ if(prog)return{kind:'topic',topic:prog,reason:'Dejaste esta microlección a medias. Retomarla ahora ayuda a consolidarla.'};
+ const seenCards=Object.keys(S.cards).filter(k=>S.cards[k].seen&&TOPIC[k.split('#')[0]]&&ts.includes(TOPIC[k.split('#')[0]])).length;
+ if(goal==='exam'&&seenCards>=3)
+  return{kind:'rafaga',reason:'Te preparas para una evaluación. Una Ráfaga mezcla preguntas y muestra qué reforzar.'};
+ if(goal==='reinforce'){
+  const w=ts.filter(t=>{const s=topicState(t);return s==='practicado'||s==='practica'}).sort((a,b)=>(topicAcc(a)||0)-(topicAcc(b)||0))[0];
+  if(w)return{kind:'topic',topic:w,reason:'Quieres reforzar, y esta microlección todavía no está dominada.'};
+ }
+ let nuevos=ts.filter(t=>topicState(t)==='nuevo');
+ if(nuevos.length){
+  let t,reason='Es el siguiente tema nuevo de tu ruta.';
+  if(goal==='explore'){
+   const cover=s=>{const x=subjectStats(g,s);return x.st.nuevo/Math.max(1,x.total)};
+   t=nuevos.slice().sort((a,b)=>cover(b.subject)-cover(a.subject))[0];
+   reason='Quieres explorar: esta materia es la que menos has visitado.';
+  }else{
+   const ord=nuevos.slice().sort((a,b)=>lv==='avanzado'?b.nivel_de_dificultad-a.nivel_de_dificultad:a.nivel_de_dificultad-b.nivel_de_dificultad);
+   t=(lv==='inicial'||lv==='avanzado'||lv==='intermedio')?ord[0]:nuevos[0];
+   if(lv)reason='Es un tema nuevo que encaja con tu punto de partida ('+lv+').';
+  }
+  return{kind:'topic',topic:t,reason};
+ }
+ const pr=ts.filter(t=>topicState(t)!=='dominado').sort((a,b)=>(topicAcc(a)||0)-(topicAcc(b)||0))[0];
+ if(pr)return{kind:'topic',topic:pr,reason:'Ya la practicaste. Otra ronda en una sesión distinta la acerca a dominada.'};
+ return{kind:'rafaga',reason:'Dominaste todo lo disponible en esta demo. Una Ráfaga mezcla preguntas para mantenerlo fresco.'};
+}
+
+/* =====================================================================
+   SESIONES DE PRÁCTICA
+   ===================================================================== */
+let tick=null;
+const stopTick=()=>{if(tick){clearInterval(tick);tick=null}};
+function topicItems(t){
+ let start=t.cards.findIndex((c,i)=>!((S.cards[ck(t.id,i)]||{}).ok>0));
+ if(start<0)start=0;
+ return t.cards.slice(start).map((c,i)=>({tid:t.id,ci:start+i}));
+}
+function cardPool(g,sub){const o=[];topicsFor(g,sub).forEach(t=>t.cards.forEach((c,i)=>o.push({tid:t.id,ci:i})));return o}
+function startSession(mode,items,extra){
+ if(!items.length){toast('Todavía no hay actividades disponibles para esto.');return}
+ UI.result=null;UI.welcomeOpen=false;UI.welcomeDone=true;
+ UI.sess=Object.assign({id:now(),mode,items,i:0,stage:'practice',results:[],sel:null,val:'',order:null,hint:false,last:null,cardStart:now(),startedAt:now(),qLeft:null,xp:0,sec:0},extra||{});
+ prepCard();
+ stopTick();
+ if(UI.sess.focusEnd||UI.sess.qLeft!=null)tick=setInterval(onTick,1000);
+ if(location.hash==='#/practicar')render();else location.hash='#/practicar';
+}
+function curQ(){const s=UI.sess,it=s.items[s.i];return TOPIC[it.tid].cards[it.ci].q}
+function prepCard(){
+ const s=UI.sess,q=curQ();
+ s.sel=null;s.val='';s.hint=false;s.last=null;s.cardStart=now();s.attempts=0;s.tried=[];s.triedVals=[];s.hintUsed=false;s.simDone=false;
+ s.order=q.type==='mcq'?shuffle(q.o.map((_,i)=>i)):null;
+ s.stage=s.mode==='topic'?'learn':'practice';
+ s.qLeft=(S.prefs.timer&&s.mode==='rafaga')?30:null;
+ UI.focus=s.stage==='learn'?'#cardh':'#qp';
+}
+function onTick(){
+ const s=UI.sess;
+ if(!s){stopTick();return}
+ if(s.focusEnd){
+  const left=Math.max(0,Math.round((s.focusEnd-now())/1000)),el=$('#ftimer');
+  if(el)el.textContent=fmt(left);
+  if(left===0&&!s.focusDone){s.focusDone=true;const n=$('#focusnote');if(n)n.hidden=false}
+ }
+ if(s.stage==='practice'&&s.qLeft!=null){
+  s.qLeft--;
+  const t=$('#qt'),b=$('#qtb');
+  if(t)t.textContent='Tiempo: '+fmt(Math.max(0,s.qLeft));
+  if(b)b.style.width=Math.max(0,s.qLeft/30*100)+'%';
+  if(s.qLeft<=0){s.qLeft=null;submitAnswer(true)}
+ }
+}
+function checkInput(given,accept){
+ const n=x=>String(x).trim().toLowerCase().replace(/\s+/g,'').replace(/[$%]/g,'').replace(',','.').replace('−','-');
+ const g=n(given);
+ return accept.some(a=>{
+  const m=n(a);if(m===g)return true;
+  return/^-?\d+(\.\d+)?$/.test(g)&&/^-?\d+(\.\d+)?$/.test(m)&&Math.abs(parseFloat(g)-parseFloat(m))<1e-9;
+ });
+}
+function submitAnswer(timeout){
+ const s=UI.sess;if(!s||s.stage!=='practice')return;
+ const it=s.items[s.i],t=TOPIC[it.tid],card=t.cards[it.ci],q=card.q,key=ck(it.tid,it.ci);
+ let ok=false,given='';
+ if(!timeout){
+  if(q.type==='mcq'){if(s.sel==null)return;ok=s.order[s.sel]===q.a;given=q.o[s.order[s.sel]]}
+  else{given=s.val;if(!String(given).trim())return;ok=checkInput(given,q.accept)}
+ }
+ const first=s.attempts===0,clean=first&&!s.hintUsed;
+ const sec=Math.min(150,Math.round((now()-s.cardStart)/1000));
+ s.cardStart=now();
+ const x=S.cards[key]||(S.cards[key]={seen:0,ok:0,sessOk:[],lastOk:false,last:0});
+ x.seen++;x.last=now();x.lastOk=ok;
+ /* Solo cuenta como evidencia de dominio un acierto sin ayuda y a la primera. */
+ if(ok){x.ok++;if(clean&&!x.sessOk.includes(s.id))x.sessOk=x.sessOk.concat(s.id).slice(-6)}
+ const d=S.days[dkey()]||(S.days[dkey()]={sec:0,q:0,ok:0});
+ d.sec+=sec;d.q++;if(ok)d.ok++;
+ const gain=timeout?0:(first?3+(ok?7:0):(ok?5:0));
+ S.xp+=gain;s.xp+=gain;s.sec+=sec;
+ touchStreak();reviewUpdate(key,ok&&first);
+ s.attempts++;S.lastVisit=now();s.qLeft=null;
+ if(ok){
+  s.results.push({tid:it.tid,ci:it.ci,ok:true,first});
+  s.last={ok:true,first};
+  s.stage='feedback';
+  setLive(METAX.correcta.titulo+' '+(first?METAX.correcta.primera(card.t,q.e):METAX.correcta.corregida(card.t,q.e)));
+ }else{
+  if(!timeout){if(q.type==='mcq')s.tried.push(s.sel);else s.triedVals.push(given)}
+  s.last={ok:false,given,timeout:!!timeout};
+  s.stage='retry';
+  setLive(METAX.incorrecta.titulo+' '+(q.h?METAX.incorrecta.pista(card.t,q.h):METAX.incorrecta.sinPista));
+ }
+ UI.focus='#qp';
+ beep(ok);save();render();
+}
+function nextCard(){
+ const s=UI.sess;if(!s)return;
+ const over=s.focusEnd&&now()>=s.focusEnd;
+ if(s.i>=s.items.length-1||over)return finishSession();
+ s.i++;prepCard();render();
+}
+function finishSession(early){
+ const s=UI.sess;stopTick();
+ if(!s)return;
+ const okN=s.results.filter(r=>r.ok).length;
+ UI.result={mode:s.mode,total:s.results.length,ok:okN,xp:s.xp,sec:s.sec,tid:s.tid||null,results:s.results,focusMin:s.focusMin||null,wasOnboarding:!S.profile.onboarded,early:!!early};
+ if(s.mode==='diag'){
+  const n=s.results.length;
+  S.profile.level=okN<=Math.floor(n/3)?'inicial':(okN===n?'avanzado':'intermedio');
+ }
+ S.lastVisit=now();save();
+ UI.sess=null;
+ if(location.hash==='#/resultado')render();else location.hash='#/resultado';
+}
+function buildRafaga(sub){
+ const pool=cardPool(S.profile.grade,sub||null);
+ const seen=pool.filter(x=>(S.cards[ck(x.tid,x.ci)]||{}).seen);
+ return shuffle(seen.length>=3?seen:pool).slice(0,5);
+}
+function buildDiag(){
+ const bySub={};
+ cardPool(S.profile.grade).forEach(x=>{const s=TOPIC[x.tid].subject;(bySub[s]=bySub[s]||[]).push(x)});
+ const picks=shuffle(Object.keys(bySub)).slice(0,3).map(s=>shuffle(bySub[s])[0]);
+ return picks;
+}
+function buildFocus(rec){
+ const g=S.profile.grade,items=[],seen=new Set();
+ const push=t=>{if(seen.has(t.id))return;seen.add(t.id);topicItems(t).forEach(i=>items.push(i))};
+ if(rec&&rec.topic)push(rec.topic);
+ const order={practica:0,nuevo:1,practicado:2,dominado:3};
+ topicsFor(g).slice().sort((a,b)=>order[topicState(a)]-order[topicState(b)]).forEach(push);
+ return items.slice(0,30);
+}
+let actx=null;
+function beep(ok){
+ if(!S.prefs.sound)return;
+ try{
+  actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  const o=actx.createOscillator(),g=actx.createGain();
+  o.frequency.value=ok?660:240;g.gain.value=.05;o.connect(g);g.connect(actx.destination);
+  o.start();o.stop(actx.currentTime+.14);
+ }catch(e){}
+}
+
+/* =====================================================================
+   ICONOS
+   ===================================================================== */
+const IC={
+ route:'<circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 17c6 0 2-10 8-10"/>',
+ explore:'<circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.1 5.1-5.1 2.1 2.1-5.1z"/>',
+ bolt:'<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>',
+ chart:'<path d="M4 20V11M10 20V4M16 20v-6M3 20h18"/>',
+ review:'<path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>'
+};
+const ico=n=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+IC[n]+'</svg>';
+const LOGO='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 5l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="currentColor"/></svg>';
+
+/* =====================================================================
+   METAX · copiloto de estudio (v0.002)
+   Copy, pistas, orbe SVG y estados centralizados, separados de la lógica
+   de lección. Metax acompaña sin presionar: sin culpa, sin rachas perdidas.
+   ===================================================================== */
+const METAX={
+ promesa:'Tu ruta sigue aquí. Avanza a tu manera.',
+ regreso:{titulo:'Qué bueno verte de nuevo.',mensaje:'Tu ruta está intacta y lista cuando quieras. Podemos retomar donde te quedaste o elegir algo nuevo.',primaria:'Retomar mi ruta',secundaria:'Explorar otra materia',compacta:'Qué bueno verte de nuevo. Tu ruta sigue aquí, a tu ritmo.'},
+ incorrecta:{titulo:'Esta respuesta no era. Sigamos explorando.',primaria:'Intentar de nuevo',secundaria:'Ver explicación',repaso:'Guardar en Zona de Repaso',
+  pista:(c,h)=>'La pista está en «'+c+'». '+h,
+  sinPista:'Todavía no tengo una pista fiable para esta pregunta. Puedes ver la explicación o guardarla para repasarla después.',
+  repetido:'Probemos con un ejemplo más sencillo. Paso a paso.',
+  tiempo:'El tiempo se agotó. No pasa nada: puedes intentarlo otra vez sin límite.',
+  parecida:'¿Quieres probar una pregunta parecida?'},
+ correcta:{titulo:'¡Correcto!',primera:(c,e)=>'Buen trabajo con «'+c+'». '+e,corregida:(c,e)=>'¡Eso es! Cambiaste la estrategia y encontraste «'+c+'». '+e},
+ pista:{pedir:'Pedir una pista a Metax',titulo:'Pista de Metax',texto:(c,h)=>'Mira primero «'+c+'». '+h+' ¿Qué relación encuentras?'},
+ completada:{titulo:'Microlección completada.',mensaje:t=>'Hoy practicaste «'+t+'». Buen avance: tu ruta ya tiene un paso más.',primaria:'Seguir mi ruta',secundaria:'Repasar esta idea',segura:'Esta idea ya te sale con más seguridad. La practicaremos de nuevo más adelante para mantenerla fresca.'},
+ corta:'Cinco minutos de práctica ya cuentan. ¿Quieres parar aquí o continuar?',
+ pausa:'Tu avance quedó guardado. Puedes volver cuando te venga bien.',
+ vacia:'Esta ruta todavía no tiene microlecciones. Puedes explorar otra materia mientras la preparamos.'
+};
+/* Pistas ancladas a la idea de cada tarjeta (las que no traen pista propia). */
+const PISTAS={
+ 'lyl-b2-pp#1':'Piensa en cómo se conservaban las obras antes de la escritura y qué pasó después con las transcripciones.',
+ 'lyl-b2-en#0':'La tesis es la postura que el autor quiere demostrar con sus argumentos.',
+ 'cyt-b2-ge#1':'Cada base tiene una pareja fija; repasa los dos pares.',
+ 'cyt-b2-ss#0':'Recuerda cuáles planetas son interiores y rocosos; el gigante gaseoso está entre los exteriores.',
+ 'cyt-b2-ec#0':'El productor fabrica su propio alimento y es el primer eslabón de la cadena.',
+ 'mat-b1-es#0':'Suma todos los datos y divide entre cuántos son.',
+ 'mat-b1-es#1':'La moda es el dato que más veces aparece.',
+ 'mat-b1-de#0':'Resuelve como una ecuación: suma 5 en ambos lados y luego divide entre 3.',
+ 'cyt-7-mc#0':'Una hipótesis es una respuesta posible que puede ponerse a prueba.',
+ 'ing-7-ps#0':'Con he, she e it el verbo termina en -s.',
+ 'cyv-7-cp#0':'Busca la opción que incluya escuchar y llegar a un acuerdo.',
+ 'edf-7-af#0':'Recuerda la cifra diaria que recomienda la OMS, en minutos y en promedio.',
+ 'cyv-8-dd#0':'Un deber es algo que haces para que todos puedan convivir y ejercer sus derechos.',
+ 'edf-8-ca#0':'Piensa en lo que el calentamiento hace con la temperatura del cuerpo y los músculos.',
+ 'lyl-8-ip#0':'Las ideas secundarias giran alrededor de la idea principal.',
+ 'cyt-9-ce#0':'Compara qué estructura tienen las eucariotas que las procariotas no tienen.',
+ 'lyl-9-tn#0':'La trama sigue un orden: planteamiento, nudo y desenlace. ¿En cuál crece el conflicto?',
+ 'cyv-9-dr#0':'Antes de elegir, necesitas saber qué opciones tienes y qué podría pasar con cada una.',
+ 'ing-b-pp#0':'Con he, she e it se usa has + participio pasado.',
+ 'cc-b-al#0':'Piensa en una receta: ¿cómo son sus pasos?',
+ 'fye-b-pp#0':'Resta los gastos de los ingresos.',
+ 'pvc-b-me#0':'Busca la meta que tenga cantidad, frecuencia y plazo.'
+};
+Object.keys(PISTAS).forEach(k=>{const p=k.split('#'),t=TOPIC[p[0]],c=t&&t.cards[+p[1]];if(c&&!c.q.h)c.q.h=PISTAS[k]});
+
+/* Anillos: solo hitos de aprendizaje verificados (nunca tiempo, visitas, rachas ni clics). */
+function metaxRings(){
+ const st=TOPICS.map(topicState);
+ const dom=TOPICS.filter((t,i)=>st[i]==='dominado');
+ const list=[
+  {ok:st.some(s=>s==='practicado'||s==='dominado'),t:'Has acertado cada pregunta de un tema al menos una vez.'},
+  {ok:Object.keys(S.cards).some(k=>masteredCard(S.cards[k])),t:'Has practicado una habilidad en dos sesiones distintas.'},
+  {ok:dom.length>=1,t:'Has dominado un tema completo.'},
+  {ok:new Set(dom.map(t=>t.subject)).size>=2,t:'Has dominado temas de dos materias distintas.'}
+ ];
+ return{n:list.filter(x=>x.ok).length,list};
+}
+let orbN=0;
+function orb(o){
+ if(!S.prefs.orb)return'';
+ const id='og'+(++orbN),sub=o.subject&&SUBJECTS[o.subject]?o.subject:null,h=sub?SUBJECTS[sub].h:255,st=o.state||'idle',s=o.size||64;
+ const n=Math.min(4,o.rings==null?metaxRings().n:o.rings),ang=[-22,28,72,-68];
+ let rings='';for(let i=0;i<n;i++)rings+='<ellipse class="ring" cx="50" cy="50" rx="'+(40+i*1.5)+'" ry="'+(13+i*1.2)+'" transform="rotate('+ang[i]+' 50 50)"/>';
+ const gly={idle:'',
+  welcome:'<path d="M50 41l2.6 6.4 6.4 2.6-6.4 2.6-2.6 6.4-2.6-6.4-6.4-2.6 6.4-2.6z" fill="#fff"/>',
+  success:'<path d="M41 50.5l6.5 6.5 12-14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>',
+  hint:'<path d="M50 40v1M50 47v13" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>'}[st]||'';
+ return'<svg class="orb" data-st="'+st+'" style="--mh:'+h+'" width="'+s+'" height="'+s+'" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><defs><radialGradient id="'+id+'" cx="38%" cy="32%" r="75%"><stop offset="0" style="stop-color:hsl(var(--mh) 95% 78%)"/><stop offset=".55" style="stop-color:hsl(var(--mh) 80% 56%)"/><stop offset="1" style="stop-color:hsl(var(--mh) 70% 34%)"/></radialGradient></defs>'+
+  '<circle class="halo" cx="50" cy="50" r="'+(st==='hint'?46:42)+'"'+(st==='hint'?' stroke-dasharray="4 4"':'')+'/>'+rings+
+  '<circle cx="50" cy="50" r="27" fill="url(#'+id+')"/><path d="M33 44a19 19 0 0 1 17-12" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="3" stroke-linecap="round"/>'+gly+'</svg>';
+}
+let mxN=0;
+/* Panel de Metax: orbe decorativo + texto. El significado siempre está en el texto. */
+function mx(o){
+ const id='mxh'+(++mxN);
+ return'<section class="card mx '+(o.tone||'')+'"'+(o.title?' aria-labelledby="'+id+'"':' aria-label="Mensaje de Metax"')+'>'+orb({state:o.state,subject:o.subject,size:o.size||56})+
+  '<div class="mxb">'+(o.title?'<h2 id="'+id+'">'+esc(o.title)+'</h2>':'')+
+  (o.subject?'<p class="small muted">Metax · '+esc(SUBJECTS[o.subject].name)+'</p>':'<p class="small muted">Metax</p>')+
+  (o.body?'<p>'+(o.html?o.body:esc(o.body))+'</p>':'')+(o.extra||'')+(o.actions?'<div class="actions">'+o.actions+'</div>':'')+'</div></section>';
+}
+function setLive(t){const l=$('#live');if(!l)return;l.textContent='';setTimeout(()=>{l.textContent=t},60)}
+function similarFor(it,s){
+ const t=TOPIC[it.tid],used=new Set(s.items.map(x=>ck(x.tid,x.ci)));
+ const same=t.cards.map((c,i)=>({tid:t.id,ci:i})).filter(x=>x.ci!==it.ci&&!used.has(ck(x.tid,x.ci)));
+ const pool=same.length?same:cardPool(S.profile.grade,t.subject).filter(x=>!used.has(ck(x.tid,x.ci)));
+ return pool.length?shuffle(pool)[0]:null;
+}
+
+const NAV=[
+ {id:'inicio',label:'Mi Ruta',sub:'Tu siguiente idea está a un paso.',ic:'route'},
+ {id:'explorar',label:'Explorar',sub:'Elige una materia. Encuentra tu próximo reto.',ic:'explore'},
+ {id:'repaso',label:'Zona de Repaso',sub:'Vuelve a lo importante y fortalece lo que sabes.',ic:'review'},
+ {id:'desafios',label:'Desafíos',sub:'Pon a prueba lo que sabes, a tu ritmo.',ic:'bolt'},
+ {id:'progreso',label:'Mi Progreso',sub:'Cada sesión suma conocimiento.',ic:'chart'},
+ {id:'perfil',label:'Perfil',sub:'Ajusta tu experiencia.',ic:'user'}
+];
+const BOTTOM=['inicio','explorar','desafios','progreso'];
+const navOf=id=>NAV.find(n=>n.id===id);
+
+/* =====================================================================
+   VISTAS
+   ===================================================================== */
+const hdr=(title,sub)=>'<header class="ph"><h1 tabindex="-1">'+title+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</header>';
+const demoBadge='<span class="badge">Demo · sin validar</span>';
+const subjIcon=k=>'<span class="hue" style="--h:'+SUBJECTS[k].h+'" aria-hidden="true">'+SUBJECTS[k].ic+'</span>';
+
+function shell(inner,active){
+ const due=readyReview().length;
+ const initials=(S.profile.name.trim()[0]||'E').toUpperCase();
+ const link=(n,cls)=>'<a href="#/'+n.id+'"'+(active===n.id?' aria-current="page"':'')+'>'+ico(n.ic)+'<span>'+n.label+'</span></a>';
+ let banners='';
+ if(!navigator.onLine)banners+='<div class="banner" role="status">Sin conexión. Puedes seguir estudiando: tu avance se guarda en este dispositivo.</div>';
+ if(!storageOk)banners+='<div class="banner" role="alert">No pudimos guardar tu avance en este dispositivo. Puedes seguir, pero al cerrar la página se perderá. Revisa el espacio o los permisos del navegador.</div>';
+ return'<div class="shell">'+
+ '<aside class="side"><a class="logo" href="#/inicio">'+LOGO+'AI Metax</a><nav aria-label="Navegación principal">'+NAV.map(n=>link(n)).join('')+'</nav>'+
+ '<p class="muted small">Aprende a tu ritmo.<br>Avanza a otro nivel.</p><p class="small muted">v0.002</p></aside>'+
+ '<div class="col"><header class="top"><a class="logo" href="#/inicio">'+LOGO+'AI Metax</a><span class="sp"></span>'+
+ '<a class="iconbtn" href="#/repaso" aria-label="Zona de Repaso'+(due?', '+due+' listos':'')+'">'+ico('review')+'<span>Repaso</span>'+(due?'<span class="cnt">'+due+'</span>':'')+'</a>'+
+ '<a class="avatar" href="#/perfil" aria-label="Perfil">'+esc(initials)+'</a></header>'+
+ '<main id="main" tabindex="-1">'+banners+inner+'</main></div>'+
+ '<nav class="bottom" aria-label="Navegación principal">'+BOTTOM.map(id=>link(navOf(id))).join('')+'</nav></div>';
+}
+
+function topicRow(t){
+ const s=topicState(t);
+ return'<a class="trow" href="#/tema/'+t.id+'">'+stIcon(s)+'<span class="tmain"><strong>'+esc(t.topic)+'</strong><span class="sub">'+esc(t.unit)+' · '+t.duracion_estimada+' min · '+t.cards.length+(t.cards.length===1?' tarjeta':' tarjetas')+'</span></span><span class="stl">'+STATE[s].l+'</span></a>';
+}
+function stackBar(st,total){
+ const d=st.dominado/Math.max(1,total)*100,p=(st.dominado+st.practicado)/Math.max(1,total)*100;
+ return'<div class="bar" aria-hidden="true"><i class="p" style="width:'+p+'%"></i><i style="width:'+d+'%"></i></div>';
+}
+function stText(st){
+ const a=[];
+ if(st.dominado)a.push(st.dominado+(st.dominado===1?' dominado':' dominados'));
+ if(st.practicado)a.push(st.practicado+(st.practicado===1?' practicado':' practicados'));
+ if(st.practica)a.push(st.practica+' en práctica');
+ if(st.nuevo)a.push(st.nuevo+(st.nuevo===1?' nuevo':' nuevos'));
+ return a.join(', ')||'Sin temas';
+}
+
+/* ---------- Mi Ruta ---------- */
+function viewHome(){
+ const p=S.profile,g=p.grade,rec=recommend(),name=p.name.trim()||'estudiante';
+ if(!UI.welcomeDone&&!UI.welcomeOpen&&S.lastVisit&&S.metax.lastWelcome!==dkey()&&dkey(new Date(S.lastVisit))!==dkey()){UI.welcomeOpen=true;S.metax.lastWelcome=dkey();save()}
+ const mins=Math.round(minutesToday()),goal=p.dailyMin;
+ const subs=subjectsFor(g).filter(s=>topicsFor(g,s).length);
+ const rs=UI.routeSubject&&subs.includes(UI.routeSubject)?UI.routeSubject:(rec&&rec.topic?rec.topic.subject:subs[0]);
+ let hero='';
+ if(!rec){
+  hero=mx({state:'idle',title:'Aún no hay microlecciones para este grado',body:METAX.vacia,actions:'<a class="btn primary" href="#/explorar">Explorar otra materia</a><a class="btn" href="#/perfil">Cambiar de grado</a>'});
+ }else if(rec.kind==='topic'){
+  const t=rec.topic,pc=practicedCount(t);
+  hero='<section class="card hero" aria-labelledby="hh"><div class="row">'+subjIcon(t.subject)+'<div><h2 id="hh">Continuar mi ruta</h2><p class="muted">'+esc(SUBJECTS[t.subject].name)+' · '+esc(t.unit)+'</p></div></div>'+
+  '<div><h3 style="font-size:1.25rem">'+esc(t.topic)+'</h3>'+
+  '<div class="bar" style="margin:.6rem 0 .3rem" aria-hidden="true"><i style="width:'+(pc/t.cards.length*100)+'%"></i></div><p class="small muted">'+pc+' de '+t.cards.length+(t.cards.length===1?' tarjeta practicada':' tarjetas practicadas')+' · '+t.duracion_estimada+' min</p></div>'+
+  '<p class="why">Te recomendamos esto porque '+esc(rec.reason.charAt(0).toLowerCase()+rec.reason.slice(1))+'</p>'+
+  '<div><button class="btn primary lg" data-act="start-topic" data-id="'+t.id+'">Seguir aprendiendo</button></div></section>';
+ }else if(rec.kind==='review'){
+  hero='<section class="card hero" aria-labelledby="hh"><div class="row"><span class="hue" aria-hidden="true">🔁</span><div><h2 id="hh">Continuar mi ruta</h2><p class="muted">Zona de Repaso</p></div></div>'+
+  '<p>'+esc(rec.reason)+'</p><p class="why">Te recomendamos esto porque tus errores son pistas para aprender.</p><div><button class="btn primary lg" data-act="start-review">Seguir aprendiendo</button></div></section>';
+ }else{
+  hero='<section class="card hero" aria-labelledby="hh"><div class="row"><span class="hue" aria-hidden="true">⚡</span><div><h2 id="hh">Continuar mi ruta</h2><p class="muted">Ráfaga mixta</p></div></div>'+
+  '<p>'+esc(rec.reason)+'</p><div><button class="btn primary lg" data-act="rafaga">Seguir aprendiendo</button></div></section>';
+ }
+ const chips=S.prefs.gamif?'<div class="row" style="margin-top:.6rem"><span class="chip">Nivel '+level()+'</span><span class="chip">'+S.xp+' XP</span>'+(streakNow()>0?'<span class="chip">Racha: '+streakNow()+(streakNow()===1?' día':' días')+'</span>':'')+'</div>':'';
+ const energy=S.prefs.energy?(function(){
+  const e=S.energy&&S.energy.date===dkey()?S.energy.v:null;
+  const msg={baja:'Una sesión de 5 minutos puede ser un buen comienzo. Tú decides.',normal:'Tu meta de hoy se ve bien. Adelante.',alta:'Buen momento para un tramo más largo, si te apetece.'};
+  return'<section class="card" aria-labelledby="eh"><h3 id="eh">Energía para aprender</h3><p class="muted small">¿Cómo te sientes para estudiar? Es solo una referencia tuya; no bloquea nada.</p>'+
+  '<div class="row" style="margin-top:.7rem">'+[['baja','Con poca energía'],['normal','Normal'],['alta','Con mucha energía']].map(x=>'<button class="chip btnlike" data-act="energy" data-v="'+x[0]+'" aria-pressed="'+(e===x[0])+'">'+x[1]+'</button>').join('')+'</div>'+
+  (e?'<p style="margin-top:.7rem">'+msg[e]+'</p>':'')+'</section>';
+ })():'';
+ const routeTopics=topicsFor(g,rs);
+ const route=subs.length?'<section class="section" aria-labelledby="rh"><h2 id="rh">Tu ruta de '+esc(SUBJECTS[rs].name)+'</h2>'+
+  '<div class="row" style="margin-bottom:.8rem">'+subs.map(s=>'<button class="chip btnlike" data-act="route-subj" data-v="'+s+'" aria-pressed="'+(s===rs)+'">'+esc(SUBJECTS[s].name)+'</button>').join('')+'</div>'+
+  '<ol class="route">'+routeTopics.map(t=>{const s=topicState(t),cur=rec&&rec.topic&&rec.topic.id===t.id;
+   return'<li'+(cur?' class="cur"':'')+'><span class="node st-'+s+'">'+stIcon(s)+'</span><a href="#/tema/'+t.id+'"><strong>'+esc(t.topic)+'</strong><span class="sub">'+esc(t.unit)+' · '+STATE[s].l+(cur?' · te toca aquí':'')+'</span></a></li>'}).join('')+'</ol></section>':'';
+ const summary=subs.length?'<section class="section" aria-labelledby="ph2"><h2 id="ph2">Tu progreso por materia</h2><div class="card">'+subs.map(s=>{const x=subjectStats(g,s);
+  return'<a class="subjrow" href="#/explorar/'+s+'" style="text-decoration:none;color:inherit">'+subjIcon(s)+'<div class="grow"><strong>'+esc(SUBJECTS[s].name)+'</strong>'+stackBar(x.st,x.total)+'<span class="small muted">'+stText(x.st)+'</span></div></a>'}).join('')+'</div></section>':'';
+ const subjO=(rec&&rec.topic?rec.topic.subject:rs)||null,R=metaxRings();
+ const welcome=UI.welcomeOpen?mx({state:'welcome',subject:subjO,title:METAX.regreso.titulo,body:METAX.regreso.mensaje,actions:'<button class="btn primary" data-act="resume">'+METAX.regreso.primaria+'</button><button class="btn" data-act="welcome-explore">'+METAX.regreso.secundaria+'</button>'}):'';
+ if(UI.welcomeOpen)hero=hero.replace('btn primary lg','btn lg');
+ return'<header class="ph"><div class="row" style="flex-wrap:nowrap;align-items:center;gap:1rem">'+orb({state:'idle',subject:subjO,size:60})+'<div><h1 tabindex="-1">Hola, '+esc(name)+'. ¿Qué quieres dominar hoy?</h1><p>'+METAX.promesa+'</p></div></div>'+chips+
+  '<details class="panel" style="margin-top:.8rem"><summary>Anillos de Metax: '+R.n+' de 4</summary><ul style="margin:.6rem 0 0;padding-left:1.1rem">'+R.list.map(x=>'<li>'+(x.ok?'<strong>Logrado.</strong> ':'Por lograr. ')+esc(x.t)+'</li>').join('')+'</ul><p class="small muted" style="margin-top:.5rem">Los anillos se ganan con práctica verificada, no con tiempo en pantalla, visitas ni rachas.</p></details></header>'+
+  '<div class="stack">'+welcome+hero+
+  '<section aria-labelledby="mh"><h2 id="mh" class="sr">Modos rápidos</h2><div class="grid3">'+
+   '<button class="card mode" data-act="rafaga"><strong>Ráfaga</strong><span>Responde unas preguntas rápidas. Refuerza lo que sabes.</span></button>'+
+   '<a class="card mode" href="#/enfoque"><strong>Enfoque</strong><span>Una sesión tranquila, paso a paso.</span></a>'+
+   '<a class="card mode" href="#/repaso"><strong>Zona de Repaso</strong><span>Tus errores son pistas para aprender.</span></a></div></section>'+
+  '<section class="card" aria-labelledby="gh"><h3 id="gh">Meta de hoy</h3><div class="row" style="margin:.6rem 0"><div class="seg" role="radiogroup" aria-label="Meta diaria en minutos">'+
+   [5,15,30].map(m=>'<label><input type="radio" name="dm" value="'+m+'" data-bind="daily"'+(goal===m?' checked':'')+'><span>'+m+' min</span></label>').join('')+'</div></div>'+
+   '<div class="bar" aria-hidden="true"><i style="width:'+Math.min(100,mins/goal*100)+'%"></i></div>'+
+   '<p class="small muted" style="margin-top:.35rem">'+(mins>=goal?'Meta de hoy completada ('+mins+' min). Puedes seguir si quieres.':mins+' de '+goal+' min hoy')+'</p></section>'+
+  energy+'</div>'+route+summary;
+}
+
+/* ---------- Explorar ---------- */
+function viewExplore(arg){
+ const g=S.profile.grade,gl=gradeLabel(g);
+ const bar='<p class="muted" style="margin-bottom:1rem">Grado: <strong>'+esc(gl)+'</strong> · <a href="#/perfil">Cambiar en Perfil</a></p>';
+ if(arg&&SUBJECTS[arg]&&subjectsFor(g).includes(arg)){
+  const ts=topicsFor(g,arg),f=UI.filter;
+  const shown=ts.filter(t=>f==='todos'||(f==='nuevo'&&topicState(t)==='nuevo')||(f==='curso'&&['practica','practicado'].includes(topicState(t)))||(f==='dominado'&&topicState(t)==='dominado'));
+  const units=[];shown.forEach(t=>{if(!units.includes(t.unit))units.push(t.unit)});
+  const S2=SUBJECTS[arg];
+  return'<p><a href="#/explorar">Volver a Explorar</a></p><header class="ph" style="margin-top:.6rem"><div class="row">'+subjIcon(arg)+'<h1 tabindex="-1">'+esc(S2.name)+'</h1></div></header>'+bar+
+  (S2.n2025?'<p class="banner" style="background:var(--surface2);color:var(--text)">Asignatura incorporada desde 2025. Aparece porque activaste en tu perfil que tu centro la habilita.</p>':'')+
+  '<div class="row" role="group" aria-label="Filtrar por estado" style="margin-bottom:.4rem">'+[['todos','Todos'],['nuevo','Nuevos'],['curso','En práctica'],['dominado','Dominados']].map(x=>'<button class="chip btnlike" data-act="filter" data-v="'+x[0]+'" aria-pressed="'+(f===x[0])+'">'+x[1]+'</button>').join('')+'</div>'+
+  (ts.length===0?mx({state:'idle',subject:arg,title:'Ruta sin microlecciones',body:METAX.vacia,actions:'<a class="btn primary" href="#/explorar">Explorar otra materia</a>'}):
+   shown.length===0?'<section class="card empty"><h2>Ningún tema coincide con este filtro</h2><button class="btn" data-act="filter" data-v="todos">Ver todos</button></section>':
+   units.map(u=>'<section class="unit"><h3>'+esc(u)+'</h3><div class="stack" style="gap:.6rem">'+shown.filter(t=>t.unit===u).map(topicRow).join('')+'</div></section>').join(''));
+ }
+ const subs=subjectsFor(g);
+ return hdr('Explorar',navOf('explorar').sub)+bar+'<div class="grid2">'+subs.map(s=>{const x=subjectStats(g,s);
+  return'<a class="card scard" href="#/explorar/'+s+'">'+subjIcon(s)+'<div class="grow"><h3>'+esc(SUBJECTS[s].name)+'</h3>'+(x.total?stackBar(x.st,x.total)+'<span class="small muted">'+x.total+(x.total===1?' tema':' temas')+' · '+x.st.dominado+' dominados</span>':'<span class="small muted">Sin contenido demo todavía</span>')+'</div></a>'}).join('')+'</div>';
+}
+
+/* ---------- Tema ---------- */
+function viewTopic(id){
+ const t=TOPIC[id];
+ if(!t||!t.grados.includes(S.profile.grade)||!subjectsFor(S.profile.grade).includes(t.subject))
+  return'<section class="card empty"><div class="big" aria-hidden="true">🛰️</div><h1 tabindex="-1" style="font-size:1.4rem">No encontramos ese tema</h1><p class="muted">Puede que no corresponda a tu grado o a las materias activas en tu perfil.</p><a class="btn primary" href="#/explorar">Volver a Explorar</a></section>';
+ const s=topicState(t),sj=SUBJECTS[t.subject];
+ const src=t.fuente_oficial_url?'<a href="'+t.fuente_oficial_url+'" target="_blank" rel="noopener">Portal MINEDUCYT de referencia</a> (indicador exacto sin verificar)':'Por identificar';
+ return'<p><a href="#/explorar/'+t.subject+'">Volver a '+esc(sj.name)+'</a></p>'+
+ '<header class="ph" style="margin-top:.6rem"><h1 tabindex="-1">'+esc(t.topic)+'</h1><p>'+esc(sj.name)+' · '+esc(t.unit)+'</p></header>'+
+ '<div class="stack"><section class="card"><div class="row" style="justify-content:space-between"><span class="row">'+stIcon(s)+'<strong>'+STATE[s].l+'</strong></span>'+demoBadge+'</div>'+
+ '<p class="small muted" style="margin:.7rem 0 1rem">Completar tarjetas no es dominar un tema. Se marca «Dominado» cuando aciertas cada pregunta en dos sesiones distintas.</p>'+
+ '<button class="btn primary lg" data-act="start-topic" data-id="'+t.id+'">'+(s==='nuevo'?'Empezar microlección':'Continuar microlección')+'</button></section>'+
+ '<section class="card"><h2 style="margin-bottom:.8rem">Tarjetas</h2><div class="stack" style="gap:.6rem">'+t.cards.map((c,i)=>{const x=S.cards[ck(t.id,i)],st=!x||!x.seen?'nuevo':masteredCard(x)?'dominado':x.ok>0?'practicado':'practica';
+  return'<div class="row">'+stIcon(st)+'<span><strong>'+esc(c.t)+'</strong> <span class="muted small">· '+STATE[st].l+'</span></span></div>'}).join('')+'</div></section>'+
+ '<section class="card"><h2 style="margin-bottom:.8rem">Ficha curricular</h2><dl class="meta">'+
+ '<dt>País</dt><dd>El Salvador</dd><dt>Grado</dt><dd>'+esc(t.grados.map(gradeLabel).join(', '))+'</dd><dt>Asignatura</dt><dd>'+esc(sj.name)+'</dd><dt>Unidad</dt><dd>'+esc(t.unit)+'</dd><dt>Tema</dt><dd>'+esc(t.topic)+'</dd>'+
+ '<dt>Habilidad</dt><dd>'+esc(t.habilidad)+'</dd><dt>Indicador de logro</dt><dd>Pendiente de verificar en el programa oficial</dd>'+
+ '<dt>Versión curricular</dt><dd>Por verificar</dd><dt>Dificultad</dt><dd>'+['','Básica','Intermedia','Avanzada'][t.nivel_de_dificultad]+'</dd><dt>Duración</dt><dd>'+t.duracion_estimada+' min</dd>'+
+ '<dt>Fuente oficial</dt><dd style="font-weight:400">'+src+'</dd><dt>Estado de revisión</dt><dd>Demo: sin validación docente</dd></dl></section></div>';
+}
+
+/* ---------- Repaso ---------- */
+function viewReview(){
+ const ready=readyReview(),all=reviewAll(),later=all.filter(x=>x.due>now()).sort((a,b)=>a.due-b.due);
+ const when=ms=>{const d=ms-now();return d<36e5?'en '+Math.max(1,Math.round(d/6e4))+' min':d<DAY?'en '+Math.round(d/36e5)+' h':'en '+Math.round(d/DAY)+(Math.round(d/DAY)===1?' día':' días')};
+ const item=x=>{const t=TOPIC[x.tid],c=t.cards[x.ci];return'<div class="panel"><strong>'+esc(c.t)+'</strong><p class="small muted">'+esc(SUBJECTS[t.subject].name)+' · '+esc(t.topic)+(x.due>now()?' · '+when(x.due):'')+'</p></div>'};
+ let body='';
+ if(!all.length)body='<section class="card empty"><div class="big" aria-hidden="true">🌱</div><h2>Todavía no tienes nada por repasar</h2><p class="muted">Cuando una respuesta no salga como esperabas, la guardaremos aquí para darte otra oportunidad más adelante.</p><a class="btn primary" href="#/explorar">Explorar materias</a></section>';
+ else{
+  body='<section class="card"><h2>Listos para repasar ('+ready.length+')</h2>'+
+  (ready.length?'<div class="stack" style="gap:.6rem;margin:.9rem 0">'+ready.map(item).join('')+'</div><button class="btn primary lg" data-act="start-review">Repasar ahora</button>':
+   '<p class="muted" style="margin:.5rem 0 1rem">Nada listo por ahora. Los repasos espaciados funcionan mejor si esperas un poco.</p><button class="btn" data-act="start-review-early">Adelantar un repaso</button>')+'</section>';
+  if(later.length)body+='<section class="card" style="margin-top:1rem"><h2>Programados ('+later.length+')</h2><div class="stack" style="gap:.6rem;margin-top:.9rem">'+later.map(item).join('')+'</div></section>';
+ }
+ return hdr('Zona de Repaso',navOf('repaso').sub)+body;
+}
+
+/* ---------- Desafíos ---------- */
+function viewChallenges(){
+ const g=S.profile.grade,subs=subjectsFor(g).filter(s=>topicsFor(g,s).length);
+ return hdr('Desafíos',navOf('desafios').sub)+'<div class="stack">'+
+ '<section class="card" aria-labelledby="rh"><h2 id="rh">Ráfaga</h2><p class="muted" style="margin:.3rem 0 1rem">Responde unas preguntas rápidas. Refuerza lo que sabes. Dura entre 3 y 5 minutos.</p>'+
+ '<div class="field"><label class="lbl" for="rsub">Materia</label><select id="rsub"><option value="">Todas las materias</option>'+subs.map(s=>'<option value="'+s+'">'+esc(SUBJECTS[s].name)+'</option>').join('')+'</select></div>'+
+ '<label class="toggle"><span><strong>Límite de tiempo</strong><br><span class="small muted">30 segundos por pregunta, con opción de añadir tiempo. Es opcional.</span></span><input type="checkbox" data-bind="timer"'+(S.prefs.timer?' checked':'')+'></label>'+
+ '<button class="btn primary" data-act="rafaga">Empezar Ráfaga</button></section>'+
+ '<section class="card"><h2>Enfoque</h2><p class="muted" style="margin:.3rem 0 1rem">Una sesión tranquila, paso a paso, con un temporizador que tú configuras.</p><a class="btn" href="#/enfoque">Configurar Enfoque</a></section>'+
+ '<section class="card"><h2>Mini-test de nivelación</h2><p class="muted" style="margin:.3rem 0 1rem">Tres preguntas rápidas ajustan tus recomendaciones. No es una nota. Nivel actual: <strong>'+levelLabel()+'</strong>.</p><button class="btn" data-act="diag">Hacer mini-test</button></section></div>';
+}
+const levelLabel=()=>({inicial:'Inicial',intermedio:'Intermedio',avanzado:'Avanzado'}[S.profile.level]||'Sin nivelar');
+
+function viewFocusSetup(){
+ const d=S.profile.dailyMin,def=d<=5?5:d<=15?15:25;
+ return'<p><a href="#/desafios">Volver a Desafíos</a></p><header class="ph" style="margin-top:.6rem"><h1 tabindex="-1">Enfoque</h1><p>Una sesión tranquila, paso a paso. Elige cuánto tiempo quieres enfocarte.</p></header>'+
+ '<div class="card stack"><fieldset class="opts" style="border:0;padding:0"><legend class="sr">Duración del bloque</legend>'+
+ [[5,'5 min','Un primer impulso'],[15,'15 min','Un buen tramo'],[25,'25 min','Bloque tipo Pomodoro']].map(x=>'<label class="optc"><input type="radio" name="foc" value="'+x[0]+'"'+(x[0]===def?' checked':'')+'><span class="box"><span><strong>'+x[1]+'</strong><small>'+x[2]+'</small></span></span></label>').join('')+'</fieldset>'+
+ '<p class="small muted">No hay sonido ni música. Cuando termine el bloque, cerramos con calma tras la tarjeta actual.</p>'+
+ '<button class="btn primary lg" data-act="focus-start">Empezar Enfoque</button></div>';
+}
+
+/* ---------- Progreso ---------- */
+function viewProgress(){
+ const g=S.profile.grade,subs=subjectsFor(g);
+ let seen=0,ok=0;Object.keys(S.cards).forEach(k=>{seen+=S.cards[k].seen;ok+=S.cards[k].ok});
+ const totalMin=Math.round(Object.values(S.days).reduce((a,d)=>a+d.sec,0)/60);
+ const ts=topicsFor(g),dom=ts.filter(t=>topicState(t)==='dominado').length;
+ const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push({k:dkey(d),w:['D','L','M','M','J','V','S'][d.getDay()],m:Math.round(((S.days[dkey(d)]||{}).sec||0)/60)})}
+ const mx=Math.max(S.profile.dailyMin,...days.map(x=>x.m));
+ if(!seen)return hdr('Mi Progreso',navOf('progreso').sub)+'<section class="card empty"><div class="big" aria-hidden="true">📈</div><h2>Tu progreso aparecerá aquí</h2><p class="muted">Completa tu primera actividad y verás cuánto practicas y qué temas ya dominas.</p><a class="btn primary" href="#/inicio">Ir a Mi Ruta</a></section>';
+ return hdr('Mi Progreso',navOf('progreso').sub)+'<div class="stack">'+
+ '<div class="tiles"><div class="tile"><b>'+totalMin+'</b><span>minutos de práctica</span></div><div class="tile"><b>'+seen+'</b><span>respuestas</span></div><div class="tile"><b>'+Math.round(ok/Math.max(1,seen)*100)+'%</b><span>de aciertos</span></div><div class="tile"><b>'+dom+'/'+ts.length+'</b><span>temas dominados</span></div></div>'+
+ '<section class="card"><h2 style="margin-bottom:.5rem">Practicado no es lo mismo que dominado</h2><p class="muted">«Practicado» significa que ya acertaste cada pregunta al menos una vez. «Dominado» pide acertar en dos sesiones distintas, porque recordar de nuevo otro día es la mejor evidencia de que aprendiste.</p></section>'+
+ '<section class="card"><h2 style="margin-bottom:.8rem">Últimos 7 días (minutos)</h2><div class="week" role="list">'+days.map((x,i)=>'<div class="d'+(i===6?' today':'')+'" role="listitem" aria-label="'+x.w+': '+x.m+' minutos"><b>'+x.m+'</b><div class="col2" style="height:'+Math.max(3,x.m/mx*100)+'%"></div><span>'+x.w+'</span></div>').join('')+'</div></section>'+
+ subs.filter(s=>topicsFor(g,s).length).map(s=>{const x=subjectStats(g,s);
+  return'<section class="card"><div class="row">'+subjIcon(s)+'<div><h2>'+esc(SUBJECTS[s].name)+'</h2><p class="small muted">'+stText(x.st)+'</p></div></div><div style="margin:.8rem 0">'+stackBar(x.st,x.total)+'</div><div class="stack" style="gap:.5rem">'+topicsFor(g,s).map(topicRow).join('')+'</div></section>'}).join('')+'</div>';
+}
+
+/* ---------- Perfil ---------- */
+function viewProfile(){
+ const p=S.profile,pr=S.prefs;
+ const tg=(id,label,desc,on)=>'<label class="toggle"><span><strong>'+label+'</strong>'+(desc?'<br><span class="small muted">'+desc+'</span>':'')+'</span><input type="checkbox" data-bind="'+id+'"'+(on?' checked':'')+'></label>';
+ return hdr('Perfil',navOf('perfil').sub)+'<div class="stack">'+
+ '<section class="card stack"><h2>Tu perfil de estudio</h2>'+
+  '<div class="field"><label class="lbl" for="pn">¿Cómo quieres que te llamemos?</label><input class="inp" id="pn" maxlength="24" autocomplete="off" value="'+esc(p.name)+'" data-bind="name" placeholder="Tu nombre o apodo"></div>'+
+  '<div class="field"><label class="lbl" for="pg">Grado</label><select id="pg" data-bind="grade">'+GRADES.map(x=>'<option value="'+x.id+'"'+(p.grade===x.id?' selected':'')+'>'+x.label+'</option>').join('')+'</select><span class="small muted">Tu progreso se conserva si cambias de grado.</span></div>'+
+  '<div class="field"><label class="lbl" for="po">¿Qué quieres dominar?</label><select id="po" data-bind="goal">'+[['new','Aprender algo nuevo'],['reinforce','Reforzar una materia'],['exam','Prepararme para una evaluación'],['explore','Explorar']].map(x=>'<option value="'+x[0]+'"'+(p.goal===x[0]?' selected':'')+'>'+x[1]+'</option>').join('')+'</select></div>'+
+  '<div class="field"><span class="lbl" id="pdl">Meta diaria</span><div class="seg" role="radiogroup" aria-labelledby="pdl">'+[5,15,30].map(m=>'<label><input type="radio" name="pdm" value="'+m+'" data-bind="daily"'+(p.dailyMin===m?' checked':'')+'><span>'+m+' min</span></label>').join('')+'</div></div>'+
+  '<div><p class="lbl">Punto de partida: '+levelLabel()+'</p><button class="btn sm" data-act="diag">Hacer mini-test</button></div>'+
+  ((p.grade==='b1'||p.grade==='b2')?'<div>'+tg('mod2025','Mi centro habilita las asignaturas de 2025','Ciencias de la Computación, Finanzas y Economía, y Proyecto de Vida y Carrera. Actívalo solo si tu institución o modalidad las incluye.',p.mod2025)+'</div>':'')+
+ '</section>'+
+ '<section class="card"><h2 style="margin-bottom:.4rem">Preferencias</h2>'+
+  '<label class="field" style="padding:.6rem 0"><span class="lbl">Modo de visualización</span><select data-bind="theme"><option value="auto"'+(pr.theme==='auto'?' selected':'')+'>Según mi dispositivo</option><option value="light"'+(pr.theme==='light'?' selected':'')+'>Claro</option><option value="dark"'+(pr.theme==='dark'?' selected':'')+'>Oscuro</option></select></label>'+
+  tg('reduceMotion','Reducir animaciones','Quita movimiento decorativo.',pr.reduceMotion)+
+  tg('orb','Mostrar el orbe de Metax','Es decorativo. Los mensajes de Metax siguen apareciendo como texto.',pr.orb)+
+  tg('sound','Sonidos','Un tono breve al responder. Desactivado por defecto.',pr.sound)+
+  tg('timer','Límite de tiempo en Ráfaga','Opcional; puedes añadir tiempo durante la pregunta.',pr.timer)+
+  tg('gamif','Mostrar nivel, XP y racha','Son un extra visual. Nunca bloquean contenido ni se pierden por faltar un día.',pr.gamif)+
+  tg('energy','Mostrar «Energía para aprender»','Una referencia que tú declaras; no mide nada.',pr.energy)+'</section>'+
+ '<section class="card"><h2 style="margin-bottom:.4rem">Tus datos</h2><p class="muted small">Tu avance se guarda solo en este dispositivo: respuestas, aciertos, duración de las tarjetas, preferencias y perfil. No se envía a ningún servidor.</p>'+
+  '<div class="row" style="margin-top:.8rem"><button class="btn sm" data-act="show-data">Ver mis datos</button><button class="btn sm" data-act="reset-ask">Borrar mis datos</button></div></section>'+
+  '<p class="small muted">AI Metax v0.002 · Metax, tu copiloto de estudio. Contenido en demostración, sin validación docente.</p></div>';
+}
+
+/* ---------- Sesión ---------- */
+function viewSession(){
+ const s=UI.sess,it=s.items[s.i],t=TOPIC[it.tid],card=t.cards[it.ci],q=card.q,key=ck(it.tid,it.ci);
+ const labels={topic:t.topic,rafaga:'Ráfaga',enfoque:'Enfoque',review:'Zona de Repaso',diag:'Mini-test'};
+ const unitWord=s.mode==='topic'?'Tarjeta':'Pregunta';
+ const head='<div class="sh">'+orb({state:'idle',subject:t.subject,size:36})+'<div class="grow"><strong>'+esc(labels[s.mode])+'</strong><p class="small muted">'+esc(SUBJECTS[t.subject].name)+' · '+esc(gradeLabel(S.profile.grade))+' '+(s.mode==='topic'?demoBadge:'')+'</p></div>'+
+  (s.focusEnd?'<span class="ftimer" id="ftimer" role="timer" aria-label="Tiempo restante">'+fmt(Math.max(0,Math.round((s.focusEnd-now())/1000)))+'</span>':'')+
+  '<button class="btn sm" data-act="exit">Terminar sesión</button></div>'+
+  '<div><div class="bar" aria-hidden="true"><i style="width:'+((s.i+(s.stage==='feedback'?1:0))/s.items.length*100)+'%"></i></div><p class="small muted" style="margin-top:.3rem">'+unitWord+' '+(s.i+1)+' de '+s.items.length+'</p></div>'+
+  '<p id="focusnote" class="banner" role="status"'+(s.focusDone?'':' hidden')+'>Tu bloque terminó. Termina esta tarjeta y haremos el cierre.</p>';
+ const qbox='<p id="qp" class="qprompt" tabindex="-1">'+esc(q.p)+'</p>';
+ const saveBtn=S.review[key]?'<span class="small muted">Guardada en tu Zona de Repaso.</span>':'<button class="btn" data-act="save-review" data-key="'+key+'">'+METAX.incorrecta.repaso+'</button>';
+ const corr=q.type==='mcq'?q.o[q.a]:q.accept[0];
+ let body='';
+ if(s.stage==='learn'){
+  body='<h1 id="cardh" tabindex="-1" style="font-size:1.4rem">'+esc(card.t)+'</h1>'+
+  '<div class="panel"><h3>Idea clave</h3><p>'+esc(card.idea)+'</p></div><div class="panel ex"><h3>Ejemplo</h3><p>'+esc(card.ejemplo)+'</p></div>'+
+  '<div class="actions"><button class="btn primary lg" data-act="to-practice">Practicar</button></div>';
+ }else if(s.stage==='practice'){
+  let inputs='';
+  if(q.type==='mcq'){
+   inputs='<fieldset class="opts" style="border:0;padding:0;margin:0" aria-labelledby="qp"><legend class="sr">Opciones de respuesta</legend>'+s.order.map((oi,di)=>{const used=s.tried.includes(di);
+    return'<label class="optc"><input type="radio" name="o" value="'+di+'" data-bind="sel"'+(s.sel===di?' checked':'')+(used?' disabled':'')+'><span class="box"><span class="k">'+String.fromCharCode(65+di)+'</span><span>'+esc(q.o[oi])+(used?' <em class="small muted">(ya la probaste)</em>':'')+'</span></span></label>'}).join('')+'</fieldset>';
+  }else{
+   inputs='<div><label class="lbl" for="ans">Tu respuesta</label><input class="inp" id="ans" type="text" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" data-bind="val" value="'+esc(s.val)+'">'+
+   (s.triedVals.length?'<p class="small muted" style="margin-top:.4rem">Ya probaste: '+s.triedVals.map(esc).join(', ')+'</p>':'')+'</div>';
+  }
+  const can=q.type==='mcq'?s.sel!=null:String(s.val).trim().length>0;
+  const hintPanel=!s.hint?'':(q.h?mx({state:'hint',subject:t.subject,size:48,title:METAX.pista.titulo,body:METAX.pista.texto(card.t,q.h)}):
+   mx({state:'hint',subject:t.subject,size:48,title:METAX.pista.titulo,body:METAX.incorrecta.sinPista,actions:'<button class="btn sm" data-act="show-expl">'+METAX.incorrecta.secundaria+'</button>'+saveBtn}));
+  body=(s.qLeft!=null?'<div class="qt"><span id="qt">Tiempo: '+fmt(Math.max(0,s.qLeft))+'</span><div class="bar" aria-hidden="true"><i id="qtb" style="width:'+Math.max(0,s.qLeft/30*100)+'%"></i></div><button class="btn sm" data-act="more-time">+15 s</button></div>':'')+
+  qbox+inputs+hintPanel+
+  (s.mode!=='topic'?'<details class="panel"><summary>Ver idea clave</summary><p style="margin-top:.5rem">'+esc(card.idea)+'</p></details>':'')+
+  '<div class="actions"><button class="btn primary lg" id="sub" data-act="submit"'+(can?'':' disabled')+'>Comprobar</button>'+(s.hint?'':'<button class="btn" data-act="hint">'+METAX.pista.pedir+'</button>')+'</div>';
+ }else if(s.stage==='retry'){
+  let extra='';
+  if(s.last&&s.last.timeout)extra+='<p class="small">'+METAX.incorrecta.tiempo+'</p>';
+  if(s.attempts>=2)extra+='<p>'+esc(METAX.incorrecta.repetido)+'</p><div class="panel ex"><h3>Ejemplo</h3><p>'+esc(card.ejemplo)+'</p></div>';
+  body=qbox+mx({state:'hint',tone:'warm',subject:t.subject,title:METAX.incorrecta.titulo,body:q.h?METAX.incorrecta.pista(card.t,q.h):METAX.incorrecta.sinPista,extra,
+   actions:'<button class="btn primary lg" data-act="retry-again">'+METAX.incorrecta.primaria+'</button><button class="btn" data-act="show-expl">'+METAX.incorrecta.secundaria+'</button>'+saveBtn});
+ }else{
+  const L=s.last,sim=(!L.ok&&!s.simDone)?similarFor(it,s):null;
+  const panel=L.ok?
+   mx({state:'success',tone:'ok',subject:t.subject,title:METAX.correcta.titulo,body:L.first?METAX.correcta.primera(card.t,q.e):METAX.correcta.corregida(card.t,q.e)}):
+   mx({state:'idle',subject:t.subject,title:'Explicación',html:true,body:'La respuesta correcta es <strong>'+esc(corr)+'</strong>. '+esc(q.e)+(sim?' '+METAX.incorrecta.parecida:'')});
+  body=qbox+panel+'<div class="actions"><button class="btn primary lg" data-act="next">'+(s.i>=s.items.length-1&&!sim?'Ver resultado':'Continuar')+'</button>'+
+   (sim?'<button class="btn" data-act="similar">Probar una pregunta parecida</button>':'')+
+   (s.mode==='topic'?'<button class="btn" data-act="reread">Leer la explicación otra vez</button>':'')+
+   (L.ok?'':saveBtn)+'</div>';
+ }
+ return'<div class="sess" id="main" tabindex="-1">'+(!navigator.onLine?'<div class="banner" role="status">Sin conexión. Tu avance se guarda en este dispositivo.</div>':'')+head+body+'</div>';
+}
+
+/* ---------- Resultado ---------- */
+function viewResult(){
+ const r=UI.result,pct=r.total?Math.round(r.ok/r.total*100):0,min=Math.max(1,Math.round(r.sec/60));
+ const unsaved=r.results.filter(x=>!x.ok&&!S.review[ck(x.tid,x.ci)]);
+ const titles={topic:METAX.completada.titulo,rafaga:'Ráfaga completada.',enfoque:'Bloque de enfoque completado.',review:'Repaso completado.',diag:'Mini-test completado.'};
+ const saveWrong=unsaved.length?'<button class="btn" data-act="save-wrong">Guardar '+(unsaved.length===1?'la que fallé':'las '+unsaved.length+' que fallé')+' para repasar</button>':'';
+ let panel='',extra='',cta='',sec='';
+ if(r.mode==='diag'){
+  extra='<p>Tu punto de partida: <strong>'+levelLabel()+'</strong>. No es una nota: solo ajusta el orden de tus recomendaciones y puedes repetirlo cuando quieras.</p>';
+  cta=r.wasOnboarding?'<button class="btn primary lg" data-act="ob-diagdone">Continuar</button>':'<a class="btn primary lg" href="#/inicio">Ir a Mi Ruta</a>';
+ }else{
+  const rec=recommend();
+  if(r.mode==='topic'&&r.tid){
+   const t=TOPIC[r.tid],st=topicState(t),seguro=t.cards.some((c,i)=>masteredCard(S.cards[ck(t.id,i)]));
+   panel=mx({state:'success',tone:'ok',subject:t.subject,body:METAX.completada.mensaje(t.topic)+(seguro?' '+METAX.completada.segura:'')});
+   extra='<p class="row">'+stIcon(st)+' Estado del tema: <strong>'+STATE[st].l+'</strong> '+demoBadge+'</p><p class="muted small">Completar las tarjetas no significa dominar el tema. Para marcarlo como dominado necesitas acertar cada pregunta, sin ayuda y a la primera, en dos sesiones distintas. El contenido es de demostración y no está validado como material oficial.</p>';
+   if(rec&&rec.kind==='topic'&&rec.topic.id!==r.tid){
+    cta='<button class="btn primary lg" data-act="start-topic" data-id="'+rec.topic.id+'">'+METAX.completada.primaria+'</button>';
+    extra+='<p class="small muted">Tu ruta continúa con «'+esc(rec.topic.topic)+'».</p>';
+   }else if(rec&&rec.kind==='review')cta='<button class="btn primary lg" data-act="start-review">'+METAX.completada.primaria+'</button>';
+   else cta='<a class="btn primary lg" href="#/inicio">'+METAX.completada.primaria+'</a>';
+   sec='<div class="actions"><button class="btn" data-act="start-topic" data-id="'+t.id+'" data-all="1">'+METAX.completada.secundaria+'</button>'+saveWrong+'</div>';
+  }else{
+   if(r.mode==='enfoque')extra+='<p>Hiciste un bloque de '+r.focusMin+' minutos. Antes de seguir, levántate, toma agua y descansa la vista unos minutos.</p>';
+   cta='<a class="btn primary lg" href="#/inicio">Volver a Mi Ruta</a>';
+   sec='<div class="actions">'+saveWrong+(reviewAll().length?'<a class="btn" href="#/repaso">Ir a Zona de Repaso</a>':'')+'<a class="btn" href="#/progreso">Ver mi progreso</a></div>';
+  }
+  if(S.profile.dailyMin===5&&minutesToday()>=5)extra+='<p>'+METAX.corta+'</p>';
+  if(r.early)extra+='<p class="muted">'+METAX.pausa+'</p>';
+ }
+ return'<div class="sess" id="main" tabindex="-1"><section class="card stack"><h1 tabindex="-1" style="font-size:1.5rem">'+titles[r.mode]+'</h1>'+
+ '<p class="resbig">'+r.ok+' de '+r.total+' <span class="muted" style="font:400 1rem sans-serif">respuestas correctas ('+pct+'%)</span></p>'+
+ '<p class="muted">'+min+(min===1?' minuto':' minutos')+' de práctica'+(S.prefs.gamif&&r.xp?' · +'+r.xp+' XP por practicar':'')+'</p>'+panel+extra+'<div class="actions">'+cta+'</div>'+sec+'</section></div>';
+}
+
+/* ---------- Onboarding ---------- */
+function viewOnboarding(){
+ const p=S.profile,st=p.onboardStep;
+ const back=st>1?'<button class="btn quiet sm" data-act="ob-back" style="align-self:flex-start">Volver</button>':'';
+ const prog=st>=1&&st<=4?'<p class="small muted">Paso '+st+' de 4</p>':'';
+ const opt=(name,val,label,small,chk,bind,k)=>'<label class="optc"><input type="radio" name="'+name+'" value="'+val+'" data-bind="'+bind+'"'+(chk?' checked':'')+'><span class="box">'+(k?'<span class="k">'+k+'</span>':'')+'<span><strong>'+label+'</strong>'+(small?'<small>'+small+'</small>':'')+'</span></span></label>';
+ let inner='';
+ if(st===0){
+  inner='<svg class="constel" viewBox="0 0 360 230" role="img" aria-label="Mapa de una ruta con cuatro paradas: Lengua, Matemática, Ciencia y Ciudadanía"><path class="path" d="M24 196C70 196 76 128 120 128S170 176 214 150 262 70 336 36"/>'+
+  '<circle class="nd n1" cx="24" cy="196" r="9"/><circle class="nd n2" cx="120" cy="128" r="9"/><circle class="nd n3" cx="214" cy="150" r="9"/><polygon class="star n4" points="336,18 341,31 354,36 341,41 336,54 331,41 318,36 331,31"/>'+
+  '<text class="n1" x="24" y="220" text-anchor="middle">Lengua</text><text class="n2" x="120" y="112" text-anchor="middle">Matemática</text><text class="n3" x="214" y="178" text-anchor="middle">Ciencia</text></svg>'+
+  '<div class="stack" style="gap:.7rem"><h1 tabindex="-1">Tu próxima gran idea empieza aquí.</h1><p class="muted" style="font-size:1.1rem">Aprende en pequeñas sesiones, practica lo importante y mira cómo avanzas.</p></div>'+
+  '<button class="btn primary lg" data-act="ob-next">Empezar</button>'+
+  '<button class="link" data-act="ob-motion" style="align-self:flex-start">'+(S.prefs.reduceMotion?'Activar animaciones':'Reducir animaciones')+'</button>';
+ }else if(st===1){
+  inner=back+prog+'<h1 tabindex="-1">¿En qué grado estás?</h1><fieldset class="opts" style="border:0;padding:0;margin:0"><legend class="sr">Grado</legend>'+GRADES.map(x=>opt('g',x.id,x.label,'',p.grade===x.id,'obgrade')).join('')+'</fieldset><p class="small muted">Podrás cambiarlo después desde tu perfil.</p>'+
+  '<button class="btn primary lg" id="obnext" data-act="ob-next"'+(p.grade?'':' disabled')+'>Continuar</button>';
+ }else if(st===2){
+  inner=back+prog+'<h1 tabindex="-1">¿Qué quieres dominar hoy?</h1><fieldset class="opts" style="border:0;padding:0;margin:0"><legend class="sr">Objetivo</legend>'+
+  [['new','Aprender algo nuevo'],['reinforce','Reforzar una materia'],['exam','Prepararme para una evaluación'],['explore','Explorar']].map(x=>opt('go',x[0],x[1],'',p.goal===x[0],'obgoal')).join('')+'</fieldset>'+
+  '<button class="btn primary lg" id="obnext" data-act="ob-next"'+(p.goal?'':' disabled')+'>Continuar</button><button class="link" data-act="ob-skip" style="align-self:flex-start">Omitir este paso</button>';
+ }else if(st===3){
+  inner=back+prog+'<h1 tabindex="-1">Busquemos tu punto de partida.</h1><p class="muted" style="font-size:1.05rem">Tres preguntas rápidas nos ayudan a ajustar el nivel. Puedes saltarlas y volver después.</p>'+
+  '<button class="btn primary lg" data-act="ob-diag">Hacer mini-test</button><button class="btn" data-act="ob-skip">Ahora no</button>';
+ }else if(st===4){
+  inner=back+prog+'<h1 tabindex="-1">¿Cuánto tiempo quieres dedicar hoy?</h1><fieldset class="opts" style="border:0;padding:0;margin:0"><legend class="sr">Meta diaria</legend>'+
+  [[5,'5 min','Un primer impulso'],[15,'15 min','Un buen tramo'],[30,'30 min','Sesión profunda']].map(x=>opt('dm',x[0],x[1],x[2],p.dailyMin===x[0],'obdaily')).join('')+'</fieldset><p class="small muted">Puedes cambiar esta meta cuando quieras.</p>'+
+  '<button class="btn primary lg" data-act="ob-next">Continuar</button><button class="link" data-act="ob-skip" style="align-self:flex-start">Omitir este paso</button>';
+ }else{
+  inner='<div class="stack" style="gap:.7rem"><h1 tabindex="-1">Ruta lista.</h1><p class="muted" style="font-size:1.1rem">Empieza con una microdosis y avanza una tarjeta a la vez.</p></div>'+
+  '<div class="field"><label class="lbl" for="obname">¿Cómo quieres que te llamemos? (opcional)</label><input class="inp" id="obname" maxlength="24" autocomplete="off" placeholder="Tu nombre o apodo" value="'+esc(p.name)+'"></div>'+
+  '<button class="btn primary lg" data-act="ob-finish">Ir a Mi Ruta</button>';
+ }
+ return'<div class="ob"><main id="main" class="obc" tabindex="-1" style="padding:0">'+inner+'</main></div>';
+}
+
+function viewError(err){
+ return'<div class="ob"><main id="main" class="obc" tabindex="-1" style="padding:0"><h1 tabindex="-1">Algo no salió como esperábamos</h1><p class="muted">No es culpa tuya y tu avance sigue guardado. Intenta volver a Mi Ruta; si el problema continúa, recarga la página.</p><a class="btn primary lg" href="#/inicio" data-act="retry">Volver a Mi Ruta</a></main></div>';
+}
+
+/* =====================================================================
+   RENDER Y RUTAS
+   ===================================================================== */
+function route(){
+ const h=location.hash.replace(/^#\/?/,'').split('/');
+ return{name:h[0]||'inicio',arg:h[1]};
+}
+function applyPrefs(){
+ const r=document.documentElement;
+ if(S.prefs.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',S.prefs.theme);
+ if(S.prefs.reduceMotion)r.setAttribute('data-motion','reduced');else r.removeAttribute('data-motion');
+}
+const VIEWS={inicio:viewHome,explorar:viewExplore,tema:viewTopic,repaso:viewReview,desafios:viewChallenges,enfoque:viewFocusSetup,progreso:viewProgress,perfil:viewProfile};
+const ACTIVE={tema:'explorar',enfoque:'desafios'};
+function render(){
+ applyPrefs();
+ const app=$('#app');if(!app)return;
+ const r=route();
+ let html='';
+ try{
+  if(r.name==='practicar'){
+   if(!UI.sess){location.hash='#/inicio';return}
+   html=viewSession();
+  }else if(r.name==='resultado'){
+   if(!UI.result){location.hash='#/inicio';return}
+   html=viewResult();
+  }else if(!S.profile.onboarded){
+   html=viewOnboarding();
+  }else{
+   const v=VIEWS[r.name]||viewHome,act=ACTIVE[r.name]||(VIEWS[r.name]?r.name:'inicio');
+   html=shell(v(r.arg),act);
+  }
+ }catch(err){console.error(err);html=viewError(err)}
+ app.innerHTML=html;
+ const n=navOf(r.name);
+ document.title=(n?n.label+' · ':'')+'AI Metax';
+ const f=UI.focus&&$(UI.focus);
+ UI.focus=null;
+ const target=f||$('main h1')||$('#main h1')||$('#main');
+ if(target&&target.focus)target.focus({preventScroll:true});
+}
+let lastRoute='';
+window.addEventListener('hashchange',()=>{
+ const r=route().name;
+ if(r!=='practicar'&&UI.sess){stopTick();UI.sess=null}
+ if(r!==lastRoute){window.scrollTo(0,0);lastRoute=r}
+ render();
+});
+window.addEventListener('online',render);
+window.addEventListener('offline',render);
+
+/* =====================================================================
+   INTERACCIÓN
+   ===================================================================== */
+let toastT=null;
+function toast(m){const t=$('#toast');if(!t)return;t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2800)}
+function openDlg(html){const d=$('#dlg');d.innerHTML=html;if(d.showModal)d.showModal();else d.setAttribute('open','')}
+function closeDlg(){const d=$('#dlg');if(!d)return;if(d.close)d.close();else d.removeAttribute('open')}
+
+const ACT={
+ 'ob-next'(){S.profile.onboardStep++;save();render()},
+ 'ob-back'(){S.profile.onboardStep=Math.max(0,S.profile.onboardStep-1);save();render()},
+ 'ob-skip'(){
+  const p=S.profile;
+  if(p.onboardStep===2&&!p.goal)p.goal='explore';
+  p.onboardStep++;save();render();
+ },
+ 'ob-motion'(){S.prefs.reduceMotion=!S.prefs.reduceMotion;save();render()},
+ 'ob-diag'(){startSession('diag',buildDiag())},
+ 'ob-diagdone'(){S.profile.onboardStep=4;UI.result=null;save();location.hash='#/inicio';render()},
+ 'ob-finish'(){
+  const n=$('#obname');if(n)S.profile.name=n.value.trim();
+  if(!S.profile.goal)S.profile.goal='explore';
+  S.profile.onboarded=true;S.profile.onboardStep=0;S.lastVisit=now();save();
+  if(location.hash==='#/inicio'||location.hash==='')render();else location.hash='#/inicio';
+ },
+ 'start-topic'(d){const t=TOPIC[d.id];if(!t)return;startSession('topic',d.all?t.cards.map((c,i)=>({tid:t.id,ci:i})):topicItems(t),{tid:t.id})},
+ 'start-review'(){startSession('review',readyReview().map(x=>({tid:x.tid,ci:x.ci})))},
+ 'start-review-early'(){startSession('review',reviewAll().sort((a,b)=>a.due-b.due).slice(0,5).map(x=>({tid:x.tid,ci:x.ci})))},
+ rafaga(){const el=$('#rsub');startSession('rafaga',buildRafaga(el&&el.value?el.value:null))},
+ diag(){startSession('diag',buildDiag())},
+ 'focus-start'(){
+  const c=document.querySelector('input[name="foc"]:checked'),m=c?+c.value:15;
+  startSession('enfoque',buildFocus(recommend()),{focusEnd:now()+m*60000,focusMin:m});
+ },
+ 'to-practice'(){const s=UI.sess;s.stage='practice';s.cardStart=now();UI.focus='#qp';render()},
+ reread(){const s=UI.sess;s.stage='learn';UI.focus='#cardh';render()},
+ hint(){const s=UI.sess,t=TOPIC[s.items[s.i].tid],c=t.cards[s.items[s.i].ci];s.hint=true;s.hintUsed=true;UI.focus='#qp';setLive(c.q.h?METAX.pista.texto(c.t,c.q.h):METAX.incorrecta.sinPista);render()},
+ 'more-time'(){const s=UI.sess;if(s.qLeft!=null){s.qLeft=Math.min(60,s.qLeft+15);const t=$('#qt');if(t)t.textContent='Tiempo: '+fmt(s.qLeft)}},
+ submit(){submitAnswer(false)},
+ next(){nextCard()},
+ exit(){const s=UI.sess;if(!s)return;if(s.stage==='retry'||(s.stage==='practice'&&s.attempts>0)){const it=s.items[s.i];s.results.push({tid:it.tid,ci:it.ci,ok:false})}if(s.results.length)finishSession(s.i<s.items.length-1);else{stopTick();UI.sess=null;location.hash='#/inicio'}},
+ 'save-review'(d){S.review[d.key]={box:0,due:now()+IV[0]};save();if(UI.sess)UI.focus='#qp';toast('Guardado en tu Zona de Repaso');render()},
+ energy(d){S.energy={date:dkey(),v:d.v};save();render()},
+ 'route-subj'(d){UI.routeSubject=d.v;render()},
+ filter(d){UI.filter=d.v;render()},
+ 'show-data'(){openDlg('<h2 id="dlgt">Tus datos</h2><p class="small muted" style="margin-bottom:.6rem">Esto es todo lo que se guarda en este dispositivo.</p><textarea id="dd" readonly aria-label="Tus datos en formato JSON">'+esc(JSON.stringify(S,null,1))+'</textarea><div class="row" style="margin-top:.8rem"><button class="btn primary sm" data-act="copy-data">Copiar</button><button class="btn sm" data-act="dlg-close">Cerrar</button></div>')},
+ 'copy-data'(){const t=$('#dd');if(!t)return;t.select();try{navigator.clipboard.writeText(t.value).then(()=>toast('Copiado'),()=>{document.execCommand('copy');toast('Copiado')})}catch(e){try{document.execCommand('copy');toast('Copiado')}catch(e2){toast('Selecciona el texto y cópialo manualmente')}}},
+ 'reset-ask'(){openDlg('<h2 id="dlgt">¿Borrar todos tus datos?</h2><p class="muted" style="margin-bottom:1rem">Se eliminarán tu perfil, tu progreso y tus preferencias de este dispositivo. No se puede deshacer.</p><div class="row"><button class="btn sm" data-act="dlg-close">Cancelar</button><button class="btn primary sm" data-act="reset-do">Sí, borrar</button></div>')},
+ 'reset-do'(){try{localStorage.removeItem(KEY)}catch(e){}S=defaults();UI.sess=null;UI.result=null;UI.welcomeOpen=false;UI.welcomeDone=false;closeDlg();location.hash='#/';render();toast('Datos borrados')},
+ 'dlg-close'(){closeDlg()},
+ retry(){render()},
+ resume(){
+  UI.welcomeOpen=false;UI.welcomeDone=true;
+  const r=recommend();
+  if(!r){location.hash='#/explorar';return}
+  if(r.kind==='topic')ACT['start-topic']({id:r.topic.id});else if(r.kind==='review')ACT['start-review']();else ACT.rafaga({});
+ },
+ 'welcome-explore'(){UI.welcomeOpen=false;UI.welcomeDone=true;location.hash='#/explorar'},
+ 'retry-again'(){const s=UI.sess;s.stage='practice';s.sel=null;s.val='';s.cardStart=now();UI.focus=curQ().type==='input'?'#ans':'#qp';render()},
+ 'show-expl'(){
+  const s=UI.sess;if(!s||(s.stage!=='retry'&&s.stage!=='practice'))return;
+  const it=s.items[s.i],q=curQ(),corr=q.type==='mcq'?q.o[q.a]:q.accept[0];
+  s.results.push({tid:it.tid,ci:it.ci,ok:false});
+  s.last={ok:false,given:(s.last&&s.last.given)||'',viewed:true};
+  s.stage='feedback';UI.focus='#qp';
+  setLive('Explicación de Metax. La respuesta correcta es '+corr+'. '+q.e);
+  render();
+ },
+ similar(){
+  const s=UI.sess,it=s.items[s.i],c=similarFor(it,s);
+  if(c){s.items.splice(s.i+1,0,c);s.simDone=true;nextCard()}
+ },
+ 'save-wrong'(){
+  UI.result.results.filter(x=>!x.ok).forEach(x=>{const k=ck(x.tid,x.ci);if(!S.review[k])S.review[k]={box:0,due:now()+IV[0]}});
+  save();toast('Guardado en tu Zona de Repaso');render();
+ },
+ pause(){toast(METAX.pausa);UI.result=null;location.hash='#/inicio'}
+
+};
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-act]');
+ if(!el)return;
+ const a=ACT[el.dataset.act];
+ if(a){if(el.tagName==='BUTTON'||el.dataset.act!=='retry')a(el.dataset,el)}
+});
+const BIND={
+ obgrade(el){S.profile.grade=el.value;save();const b=$('#obnext');if(b)b.disabled=false},
+ obgoal(el){S.profile.goal=el.value;save();const b=$('#obnext');if(b)b.disabled=false},
+ obdaily(el){S.profile.dailyMin=+el.value;save()},
+ daily(el){S.profile.dailyMin=+el.value;save();render()},
+ sel(el){const s=UI.sess;if(!s)return;s.sel=+el.value;const b=$('#sub');if(b)b.disabled=false},
+ name(el){S.profile.name=el.value.trim();save();toast('Nombre actualizado')},
+ grade(el){S.profile.grade=el.value;save();UI.filter='todos';UI.routeSubject=null;toast('Catálogo actualizado a '+gradeLabel(el.value));render()},
+ goal(el){S.profile.goal=el.value;save();toast('Objetivo actualizado')},
+ mod2025(el){S.profile.mod2025=el.checked;save();toast(el.checked?'Asignaturas de 2025 activadas':'Asignaturas de 2025 ocultas')},
+ theme(el){S.prefs.theme=el.value;save();render()},
+ reduceMotion(el){S.prefs.reduceMotion=el.checked;save();render()},
+ sound(el){S.prefs.sound=el.checked;save();if(el.checked)beep(true)},
+ timer(el){S.prefs.timer=el.checked;save()},
+ gamif(el){S.prefs.gamif=el.checked;save()},
+ energy(el){S.prefs.energy=el.checked;save()},
+ orb(el){S.prefs.orb=el.checked;save();render()}
+};
+document.addEventListener('change',e=>{const el=e.target,b=el.dataset&&el.dataset.bind;if(b&&BIND[b]&&b!=='val')BIND[b](el)});
+document.addEventListener('input',e=>{
+ const el=e.target;
+ if(el.dataset&&el.dataset.bind==='val'&&UI.sess){UI.sess.val=el.value;const b=$('#sub');if(b)b.disabled=!el.value.trim()}
+});
+document.addEventListener('keydown',e=>{
+ const s=UI.sess;
+ if(e.key==='Enter'&&e.target&&e.target.id==='ans'){e.preventDefault();submitAnswer(false);return}
+ if(s&&s.stage==='practice'&&curQ().type==='mcq'&&/^[1-4]$/.test(e.key)&&!(e.target&&/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)&&e.target.type!=='radio')){
+  const i=+e.key-1,r=document.querySelector('input[name="o"][value="'+i+'"]');
+  if(r&&!r.disabled){r.checked=true;s.sel=i;const b=$('#sub');if(b)b.disabled=false;r.focus()}
+ }
+});
+
+/* arranque */
+lastRoute=route().name;
+render();
+</script>
+</body>
+</html>
