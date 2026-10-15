@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI Metax v0.003 — Aprende a tu ritmo</title>
+<title>AI Metax — Aprende a tu ritmo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Sora:wght@500;700;800&display=swap" rel="stylesheet">
@@ -268,16 +268,14 @@ dialog textarea{width:100%;min-height:160px;font:.8rem monospace;background:var(
 .orb .lens{fill:#fff;fill-opacity:.25;stroke:#fff;stroke-width:1.8}
 .orb .sk2{fill:none;stroke:hsl(var(--mh) 70% 48%);stroke-width:2.6;stroke-linecap:round}
 .orb .sk3{fill:hsl(var(--mh) 70% 52%);stroke:none}
-.mxw{position:fixed;z-index:40;right:14px;bottom:92px;display:flex;flex-direction:column;align-items:flex-end;gap:.5rem}
-.mxw.below{flex-direction:column-reverse}
-.mxw.left{align-items:flex-start}
-.mxbtn{width:64px;height:64px;border-radius:50%;border:0;background:transparent;padding:0;cursor:grab;touch-action:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
+/* FIX-004: bloque Metax flotante consolidado (antes estaba duplicado en dos sitios) */
+.mxw{position:fixed;z-index:40;right:14px;bottom:92px;width:64px;height:64px;display:flex;flex-direction:column;align-items:flex-end}
+.mxbtn{width:100%;height:100%;border-radius:50%;border:0;background:transparent;padding:0;cursor:grab;touch-action:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
 .mxbtn:active{cursor:grabbing}
 .mxbtn.squish{animation:squish .45s cubic-bezier(.3,1.6,.5,1)}
-.mxw.calm .mxbtn{width:48px;height:48px}
 .mxw.calm .mxbtn.squish{animation:none}
 @keyframes squish{0%{transform:scale(1)}30%{transform:scale(1.15,.85)}60%{transform:scale(.93,1.07)}100%{transform:scale(1)}}
-.mxbub{width:min(310px,calc(100vw - 28px));background:var(--surface);border:1.5px solid var(--primary);border-radius:18px;padding:.9rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.55rem}
+.mxbub{position:absolute;right:auto;left:0;width:min(310px,calc(100vw - 16px));max-width:calc(100vw - 16px);background:var(--surface);border:1.5px solid var(--primary);border-radius:18px;padding:.9rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.55rem;z-index:41}
 .mxbub p{margin:0}
 .tabs{display:flex;gap:.4rem;flex-wrap:wrap}
 .tab{min-height:44px;padding:.5rem .9rem;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--text);font:700 .95rem "Atkinson Hyperlegible",sans-serif;cursor:pointer}
@@ -302,10 +300,7 @@ dialog textarea{width:100%;min-height:160px;font:.8rem monospace;background:var(
 .nlist{margin:.4rem 0 0;padding-left:1.15rem;display:flex;flex-direction:column;gap:.35rem}
 .chip.st{border-style:dashed}
 /* ---- v0.003 ---- */
-.mxw{position:fixed;z-index:40;right:14px;bottom:92px;width:64px;height:64px}
 .mxw.calm{width:48px;height:48px}
-.mxbtn{width:100%;height:100%}
-.mxbub{position:absolute;right:auto;left:0;width:min(310px,calc(100vw - 16px));max-width:calc(100vw - 16px);background:var(--surface);border:1.5px solid var(--primary);border-radius:18px;padding:.9rem 1rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:.55rem;z-index:41}
 .gbtn{position:fixed;z-index:39;left:14px;bottom:92px;min-height:44px;padding:.5rem 1rem;border-radius:99px;border:1.5px solid var(--primary);background:var(--surface);color:var(--primary);font:700 .95rem "Atkinson Hyperlegible",sans-serif;cursor:pointer;box-shadow:var(--shadow)}
 @media (min-width:900px){.gbtn{left:274px;bottom:24px}}
 .sgrid{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
@@ -356,6 +351,40 @@ dialog textarea{width:100%;min-height:160px;font:.8rem monospace;background:var(
 @media (prefers-reduced-transparency:reduce){
   :root[data-neon="1"] .card,:root[data-neon="1"] .panel,:root[data-neon="1"] .tile,:root[data-neon="1"] .trow,:root[data-neon="1"] .mxbub,:root[data-neon="1"] dialog,:root[data-neon="1"] .bcol,:root[data-neon="1"] .top,:root[data-neon="1"] .bottom{-webkit-backdrop-filter:none;backdrop-filter:none;background:#12183A}
 }
+/* ---- v0.003.1: L1a bloques de estudio · L2a etiqueta de Metax · L3 recorrido ---- */
+:root{--sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px}
+.bloques{display:flex;flex-direction:column;gap:var(--sp-4)}
+.bloque{--b-bg:var(--surface);--b-acc:var(--line);display:flex;flex-direction:column;gap:var(--sp-2);padding:var(--sp-4);border:1px solid var(--line);border-left:6px solid var(--b-acc);border-radius:14px;background:var(--b-bg);color:var(--text)}
+.bloque-rot{display:flex;align-items:center;gap:var(--sp-2)}
+.bloque-ic{width:22px;height:22px;flex:none;color:var(--b-acc);stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bloque-t{margin:0;font:700 1rem Sora,"Atkinson Hyperlegible",system-ui,sans-serif;letter-spacing:0;color:var(--text)}
+.bloque-cuerpo{display:flex;flex-direction:column;gap:var(--sp-2)}
+.bloque-cuerpo p{max-width:68ch}
+.bloque-teoria{--b-bg:var(--surface);--b-acc:var(--muted)}
+.bloque-ejemplo{--b-bg:var(--primary-soft);--b-acc:var(--primary)}
+.bloque-formula{--b-bg:var(--bg2);--b-acc:var(--text);border-style:dashed;border-left-style:solid}
+.bloque-pista{--b-bg:var(--amber-soft);--b-acc:var(--amber)}
+.bloque-reto{--b-bg:var(--surface);--b-acc:var(--primary);border:2px solid var(--primary);border-left-width:8px;box-shadow:var(--shadow)}
+.bloque-feedback.ok{--b-bg:var(--ok-soft);--b-acc:var(--ok)}
+.bloque-feedback.aviso{--b-bg:var(--amber-soft);--b-acc:var(--amber);border-top:3px solid var(--amber)}
+.bloque-reto .qprompt{margin:0}
+.formulas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--sp-2)}
+.formulas li{padding:var(--sp-2) var(--sp-3);background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+.formulas code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:1rem;font-weight:700;color:var(--text);white-space:pre-wrap}
+.mxlbl{position:absolute;top:50%;transform:translateY(-50%);white-space:nowrap;background:var(--surface);border:1.5px solid var(--primary);color:var(--text);padding:var(--sp-2) var(--sp-3);border-radius:99px;font:700 .9rem "Atkinson Hyperlegible",system-ui,sans-serif;box-shadow:var(--shadow);cursor:pointer;z-index:1}
+.mxlbl-izq{right:calc(100% + 8px)}
+.mxlbl-der{left:calc(100% + 8px)}
+.mxbub details{border:1px solid var(--line);border-radius:12px;padding:var(--sp-2) var(--sp-3)}
+.mxbub summary{cursor:pointer;font-weight:700;min-height:36px;display:flex;align-items:center}
+.mxbub details .btn{margin-top:var(--sp-2)}
+.tour{display:flex;flex-direction:column;gap:var(--sp-3);border:2px solid var(--primary)}
+.tour h2{margin:0}
+.tourflow{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;font-weight:700}
+.tourbl{display:flex;gap:var(--sp-2);flex-wrap:wrap}
+.tourbl-i{--b-bg:var(--surface);--b-acc:var(--line);display:inline-flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);border:1px solid var(--line);border-left:4px solid var(--b-acc);border-radius:10px;background:var(--b-bg);font-weight:700}
+:root[data-neon="1"] .bloque-reto{box-shadow:0 0 18px -4px rgba(34,211,238,.55)}
+:root[data-neon="1"] .mxlbl{background:rgba(18,24,58,.94);border-color:var(--neon-b)}
+:root[data-neon="1"] .tour{box-shadow:0 0 22px -6px rgba(139,92,246,.75)}
 </style>
 </head>
 <body>
@@ -385,7 +414,7 @@ const GRADES=[
 const mcq=(p,o,a,e,h)=>({type:'mcq',p,o,a,e,h});
 const inp=(p,accept,e,h)=>({type:'input',p,accept,e,h});
 const C=(t,idea,ejemplo,q)=>({t,idea,ejemplo,q});
-const APP_VERSION='0.003';
+const APP_VERSION='0.003.1';
 const cicloOf=g=>(g==='7'||g==='8'||g==='9')?'tc':'em';
 const CICLOS={tc:'Tercer Ciclo (7.º a 9.º)',em:'Educación Media (1.º y 2.º de bachillerato)'};
 const SUBJECTS={
@@ -1129,7 +1158,16 @@ const GUIA_TUTOR={
  'adi-web':'Error común: creer que una información es cierta porque es popular. Practica verificar la fuente y compararla con otra.'
 };
 (function(){
- const clone=(id,nid,sub)=>{const s=LESSONS.find(t=>t.id===id);LESSONS.push(Object.assign({},s,{id:nid,subject:sub,fuente_oficial_url:SUBJECTS[sub].url}))};
+ // FIX-004: clonar en profundidad para no compartir arrays entre temas
+ const clone=(id,nid,sub)=>{
+  const s=LESSONS.find(t=>t.id===id);
+  if(!s){console.warn('[Metax] clone: tema origen no existe:',id);return}
+  const deep=JSON.parse(JSON.stringify(s));
+  deep.id=nid;
+  deep.subject=sub;
+  deep.fuente_oficial_url=SUBJECTS[sub].url;
+  LESSONS.push(deep);
+ };
  clone('fis-newton','cfi-newton','cfi');clone('fis-arq','cfi-arq','cfi');clone('bio-gen','cyt-gen','cyt');clone('bio-eco','cyt-eco','cyt');
  LESSONS.forEach(t=>{
   t.guiaTutor=GUIA_TUTOR[t.id];
@@ -1142,6 +1180,25 @@ const GUIA_TUTOR={
 /* Puerta de calidad: solo se publica un tema con ubicación en la malla, teoría, historia, ejemplos paso a paso, laboratorio, práctica y guía del tutor. */
 const lessonOk=t=>t.grados.length===1&&t.cards.length>=3&&t.teoria&&t.teoria.length>=3&&!!t.historia&&t.ejemplos&&t.ejemplos.length>=1&&t.ejemplos.every(e=>e.pasos&&e.pasos.length>=3)&&!!(t.sim||t.clasif)&&!!t.guiaTutor;
 const TOPICS=LESSONS.filter(lessonOk);
+// FIX-004: reportar temas descartados por la puerta de calidad
+const rejected=LESSONS.filter(t=>!lessonOk(t));
+if(rejected.length){
+ const reason=t=>{
+  if(!t.grados||!t.grados.length)return'sin grados (falta PLACE o unidad inválida)';
+  if(t.grados.length!==1)return'más de un grado asignado';
+  if(!t.cards||t.cards.length<3)return'menos de 3 tarjetas';
+  if(!t.teoria||t.teoria.length<3)return'teoría insuficiente';
+  if(!t.historia)return'sin historia';
+  if(!t.ejemplos||!t.ejemplos.length)return'sin ejemplos';
+  if(!t.ejemplos.every(e=>e.pasos&&e.pasos.length>=3))return'ejemplos con menos de 3 pasos';
+  if(!(t.sim||t.clasif))return'sin laboratorio (sim/clasif)';
+  if(!t.guiaTutor)return'sin GUIA_TUTOR';
+  return'motivo desconocido';
+ };
+ console.group('[Metax audit] Temas descartados por lessonOk: '+rejected.length);
+ console.table(rejected.map(t=>({id:t.id,title:t.topic,motivo:reason(t)})));
+ console.groupEnd();
+}
 const TOPIC=Object.fromEntries(TOPICS.map(t=>[t.id,t]));
 const valLabel=t=>{const u=(outlineOf(t.subject,t.grados[0])||[]).find(x=>x.u===t.unit);return(u&&!u.propuesta)?'Basado en el temario compartido · pendiente de validar':'Propuesta de Metax · pendiente de validar'};
 const valShort=t=>valLabel(t).startsWith('Basado')?'Temario compartido · por validar':'Propuesta · por validar';
@@ -1172,18 +1229,35 @@ const ck=(tid,ci)=>tid+'#'+ci;
 const KEY='aimetax.v1';
 let storageOk=true;
 function defaults(){return{
- v:1,
+ v:2, // FIX-004: esquema 2
  profile:{name:'',grade:null,goal:null,level:null,dailyMin:15,mod2025:false,onboardStep:0,onboarded:false},
- prefs:{theme:'auto',reduceMotion:false,sound:false,gamif:true,energy:true,timer:false,orb:true,floatMetax:true,pos:null},
- cards:{},review:{},xp:0,days:{},streak:{cur:0,best:0,last:null},energy:null,lastVisit:null,metax:{lastWelcome:null},dudas:[],seenVersion:null,tareas:[]
+ prefs:{theme:'auto',reduceMotion:false,sound:false,gamif:true,energy:true,timer:false,orb:true,floatMetax:true,pos:null,neon:true},
+ cards:{},review:{},xp:0,days:{},streak:{cur:0,best:0,last:null},energy:null,lastVisit:null,metax:{lastWelcome:null},dudas:[],seenVersion:null,tareas:[],tour:{done:true,step:0} /* v0.003.1: por defecto «visto» para quien ya usa la app */
 }}
+// FIX-004: migraciones de esquema
+function migrate(data){
+ if(!data||typeof data!=='object')return defaults();
+ if(!data.v||data.v<2){
+  data.tareas=(data.tareas||[]).map(t=>({
+   creada:t.creada||Date.now(),
+   pasos:t.pasos||[],
+   notas:t.notas||'',
+   estado:t.estado||'pendiente',
+   prioridad:t.prioridad||'media',
+   ...t
+  }));
+  data.v=2;
+ }
+ return data;
+}
 function load(){
  let raw=null;
  try{raw=localStorage.getItem(KEY)}catch(e){storageOk=false;return defaults()}
  if(!raw)return defaults();
  try{
   const o=JSON.parse(raw),d=defaults();
-  return Object.assign(d,o,{profile:Object.assign(d.profile,o.profile||{}),prefs:Object.assign(d.prefs,o.prefs||{})});
+  const merged=Object.assign(d,o,{profile:Object.assign(d.profile,o.profile||{}),prefs:Object.assign(d.prefs,o.prefs||{})});
+  return migrate(merged); // FIX-004
  }catch(e){return defaults()}
 }
 let S=load();
@@ -1479,7 +1553,39 @@ const PISTAS={
  'fye-b-pp#0':'Resta los gastos de los ingresos.',
  'pvc-b-me#0':'Busca la meta que tenga cantidad, frecuencia y plazo.'
 };
-Object.keys(PISTAS).forEach(k=>{const p=k.split('#'),t=TOPIC[p[0]],c=t&&t.cards[+p[1]];if(c&&!c.q.h)c.q.h=PISTAS[k]});
+// FIX-004: avisar de pistas huérfanas o duplicadas (los avisos solo salen con ?debug=1 para no ensuciar la consola del usuario)
+const METAX_DEBUG=/[?&]debug=1/.test(location.search);
+Object.keys(PISTAS).forEach(k=>{
+ const p=k.split('#'),t=TOPIC[p[0]],c=t&&t.cards[+p[1]];
+ if(!t){if(METAX_DEBUG)console.warn('[Metax] Pista huérfana (tema):',k);return}
+ if(!c){if(METAX_DEBUG)console.warn('[Metax] Pista huérfana (tarjeta):',k);return}
+ if(c.q.h){if(METAX_DEBUG)console.warn('[Metax] Pista duplicada:',k);return}
+ c.q.h=PISTAS[k];
+});
+// FIX-004: auditoría de integridad del catálogo (solo en modo debug). Va aquí, después de declarar PISTAS, porque un const no se puede leer antes de su declaración.
+if(METAX_DEBUG){
+ const lessonIds=new Set(LESSONS.map(t=>t.id));
+ const placeIds=new Set(Object.keys(PLACE));
+ const guiaIds=new Set(Object.keys(GUIA_TUTOR));
+ const pistaIds=new Set(Object.keys(PISTAS).map(k=>k.split('#')[0]));
+ const audit={
+  'PISTAS → tema inexistente':[...pistaIds].filter(x=>!lessonIds.has(x)),
+  'PLACE → tema inexistente':[...placeIds].filter(x=>!lessonIds.has(x)),
+  'GUIA_TUTOR → tema inexistente':[...guiaIds].filter(x=>!lessonIds.has(x)),
+  'LESSONS sin PLACE':[...lessonIds].filter(x=>!placeIds.has(x)),
+  'LESSONS sin GUIA_TUTOR':[...lessonIds].filter(x=>!guiaIds.has(x)),
+  'LESSONS sin PISTAS':[...lessonIds].filter(x=>!pistaIds.has(x))
+ };
+ console.group('[Metax audit] Integridad del catálogo');
+ Object.entries(audit).forEach(([k,v])=>{if(v.length)console.warn(k+':',v)});
+ // FIX-004: verificación temporal de la copia profunda (tarea 3): mutar un clon no debe afectar al original
+ if(TOPIC['cfi-newton']&&TOPIC['fis-newton']){
+  const a=TOPIC['cfi-newton'].cards[0].q,b=TOPIC['fis-newton'].cards[0].q,keep=a.h;
+  a.h='__prueba__';const indep=b.h!=='__prueba__'&&TOPIC['cfi-newton'].cards!==TOPIC['fis-newton'].cards;a.h=keep;
+  console.log('[Metax audit] clone independiente (cfi-newton vs fis-newton):',indep);
+ }
+ console.groupEnd();
+}
 
 /* Anillos: solo hitos de aprendizaje verificados (nunca tiempo, visitas, rachas ni clics). */
 function metaxRings(){
@@ -1552,11 +1658,11 @@ function shell(inner,active){
  if(!storageOk)banners+='<div class="banner" role="alert">No pudimos guardar tu avance en este dispositivo. Puedes seguir, pero al cerrar la página se perderá. Revisa el espacio o los permisos del navegador.</div>';
  return'<div class="shell">'+
  '<aside class="side"><a class="logo" href="#/inicio">'+LOGO+'AI Metax</a><nav aria-label="Navegación principal">'+NAV.map(n=>link(n)).join('')+'</nav>'+
- '<p class="muted small">Aprende a tu ritmo.<br>Avanza a otro nivel.</p><p class="small"><a href="#/notas">Notas de la versión · v0.003</a></p></aside>'+
+ '<p class="muted small">Aprende a tu ritmo.<br>Avanza a otro nivel.</p><p class="small"><a href="#/notas">Notas de la versión · <span data-version></span></a></p></aside>'+
  '<div class="col"><header class="top"><a class="logo" href="#/inicio">'+LOGO+'AI Metax</a><span class="sp"></span>'+
  '<a class="iconbtn" href="#/repaso" aria-label="Zona de Repaso'+(due?', '+due+' listos':'')+'">'+ico('review')+'<span>Repaso</span>'+(due?'<span class="cnt">'+due+'</span>':'')+'</a>'+
  '<a class="avatar" href="#/perfil" aria-label="Perfil">'+esc(initials)+'</a></header>'+
- '<main id="main" tabindex="-1">'+banners+inner+'<p class="small muted" style="margin-top:2.2rem"><a href="#/notas">Notas de la versión · v0.003</a></p></main></div>'+
+ '<main id="main" tabindex="-1">'+banners+inner+'<p class="small muted" style="margin-top:2.2rem"><a href="#/notas">Notas de la versión · <span data-version></span></a></p></main></div>'+
  '<nav class="bottom" aria-label="Navegación principal">'+BOTTOM.map(id=>link(navOf(id))).join('')+'</nav></div>';
 }
 
@@ -1585,6 +1691,21 @@ const fechaTxt=f=>{if(!f)return'Sin fecha';const p=f.split('-');return(+p[2])+' 
 const tareasAbiertas=()=>S.tareas.filter(t=>t.estado!=='hecha');
 function proximasTareas(n){return tareasAbiertas().slice().sort((a,b)=>{const x=a.fecha||'9999',y=b.fecha||'9999';return x<y?-1:x>y?1:0}).slice(0,n)}
 const countUnits=o=>(o||[]).length;
+/* v0.003.1 · L3: recorrido de bienvenida breve y saltable (tarjeta dentro del Escritorio, sin bloquear) */
+const TOUR_PASOS=[
+ {t:'Mi Escritorio',txt:'Aquí puedes continuar una sesión, revisar tu avance y ver qué podrías estudiar después.'},
+ {t:'Explorar',txt:'Explora tus materias y entra en una unidad o tema. El catálogo depende de tu grado y de las materias disponibles.'},
+ {t:'Aprender en un tema',txt:'Explora una explicación, revisa ejemplos y practica. Metax puede darte pistas y guardar tus dudas; las preguntas escritas dependen de que la plataforma habilite el tutor.'}
+];
+function tourCard(){
+ const n=Math.min(2,Math.max(0,+S.tour.step||0)),p=TOUR_PASOS[n],g=S.profile.grade;
+ let vis='';
+ if(n===0)vis='<p class="tourflow"><span class="chip">Materias</span><span aria-hidden="true">→</span><span class="chip">Unidades</span><span aria-hidden="true">→</span><span class="chip">Temas</span></p>';
+ else if(n===1)vis='<div class="row">'+subjectsFor(g).slice(0,3).map(s=>'<span class="chip">'+SUBJECTS[s].ic+' '+esc(SUBJECTS[s].name)+'</span>').join('')+'</div>';
+ else vis='<div class="tourbl">'+[['teoria','Explicación'],['ejemplo','Ejemplos'],['reto','Práctica']].map(x=>'<span class="tourbl-i bloque-'+x[0]+'"><svg class="bloque-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+BL_IC[x[0]]+'</svg>'+x[1]+'</span>').join('')+'</div>';
+ return'<section class="card tour" role="region" aria-labelledby="tourh"><p class="small muted">Recorrido de bienvenida · Paso '+(n+1)+' de 3</p><h2 id="tourh" tabindex="-1">'+esc(p.t)+'</h2><p>'+esc(p.txt)+'</p>'+vis+
+  '<div class="actions">'+(n<2?'<button class="btn primary" id="tournext" data-act="tour-next">Siguiente</button>':'<button class="btn primary" data-act="tour-start">Empezar mi primera microlección</button>')+'<button class="btn" data-act="tour-skip">Saltar recorrido</button></div></section>';
+}
 function viewHome(){
  const p=S.profile,g=p.grade,rec=recommend(),name=p.name.trim()||'estudiante',ciclo=cicloOf(g);
  if(!UI.welcomeDone&&!UI.welcomeOpen&&S.lastVisit&&S.metax.lastWelcome!==dkey()&&dkey(new Date(S.lastVisit))!==dkey()){UI.welcomeOpen=true;S.metax.lastWelcome=dkey();save()}
@@ -1603,7 +1724,8 @@ function viewHome(){
  const chips=S.prefs.gamif?'<div class="row" style="margin-top:.6rem"><span class="chip">Nivel '+level()+'</span><span class="chip">'+S.xp+' XP</span>'+(streakNow()>0?'<span class="chip">Racha: '+streakNow()+(streakNow()===1?' día':' días')+'</span>':'')+'</div>':'';
  const R=metaxRings();
  const welcome=UI.welcomeOpen?mx({state:'welcome',subject:subjO,title:METAX.regreso.titulo,body:METAX.regreso.mensaje,actions:'<button class="btn primary" data-act="resume">'+METAX.regreso.primaria+'</button><button class="btn" data-act="welcome-explore">'+METAX.regreso.secundaria+'</button>'}):'';
- const newsNotice=(S.seenVersion!==APP_VERSION)?'<section class="card" aria-label="Novedades"><p><strong>Hay novedades en la versión '+APP_VERSION+'.</strong> Puedes verlas cuando quieras.</p><div class="actions" style="margin-top:.6rem"><a class="btn" href="#/notas" data-act="news-seen">Ver las notas de la versión</a><button class="btn quiet" data-act="news-seen">Cerrar</button></div></section>':'';
+ const newsNotice=(S.seenVersion!==APP_VERSION&&(!S.tour||S.tour.done))?'<section class="card" aria-label="Novedades"><p><strong>Hay novedades en la versión '+APP_VERSION+'.</strong> Puedes verlas cuando quieras.</p><div class="actions" style="margin-top:.6rem"><a class="btn" href="#/notas" data-act="news-seen">Ver las notas de la versión</a><button class="btn quiet" data-act="news-seen">Cerrar</button></div></section>':'';
+ const tourHtml=(S.tour&&!S.tour.done)?tourCard():'';
  const nRep=readyReview().length,nTar=tareasAbiertas().length;
  const tile=(href,act,ic,t,d)=>(href?'<a class="card mode" href="'+href+'">':'<button class="card mode" data-act="'+act+'">')+'<span class="tic" aria-hidden="true">'+ic+'</span><strong>'+t+'</strong><span>'+d+'</span>'+(href?'</a>':'</button>');
  const shortcuts='<section aria-labelledby="ah"><h2 id="ah" style="margin-bottom:.7rem">Accesos directos</h2><div class="sgrid">'+
@@ -1629,7 +1751,7 @@ function viewHome(){
  const tareas='<section class="card" aria-labelledby="th"><div class="row" style="justify-content:space-between"><h2 id="th">Próximas tareas</h2><a class="btn sm" href="#/tareas">Abrir Tareas</a></div>'+
   (pt.length?'<ul class="pers" style="margin-top:.7rem">'+pt.map(t=>'<li><strong>'+esc(t.titulo)+'</strong><br><span class="small muted">'+(t.materia&&SUBJECTS[t.materia]?esc(SUBJECTS[t.materia].name)+' · ':'')+esc(fechaTxt(t.fecha))+' · '+EST[t.estado]+'</span></li>').join('')+'</ul>':'<p class="muted" style="margin-top:.5rem">Aún no tienes tareas. Agrégalas cuando quieras: puedes ordenarlas por día y dividirlas en pasos.</p>')+'</section>';
  return'<header class="ph"><div class="row" style="flex-wrap:nowrap;align-items:center;gap:1rem">'+orb({state:'idle',subject:subjO,size:60,skin:skinOf(subjO)})+'<div><h1 tabindex="-1">Hola, '+esc(name)+'. ¿Qué quieres dominar hoy?</h1><p>Tu Escritorio de Estudio · '+esc(gradeLabel(g))+'</p></div></div>'+chips+'</header>'+
-  '<div class="stack">'+newsNotice+welcome+hero+shortcuts+mat+avance+tareas+'</div>';
+  '<div class="stack">'+tourHtml+newsNotice+welcome+hero+shortcuts+mat+avance+tareas+'</div>';
 }
 
 /* ---------- Tareas ---------- */
@@ -1723,14 +1845,18 @@ function viewTopic(id){
  if(!t||!topicsFor(g).includes(t))
   return'<section class="card empty"><div class="big" aria-hidden="true">🛰️</div><h1 tabindex="-1" style="font-size:1.4rem">No encontramos ese tema</h1><p class="muted">Puede que no corresponda a tu ciclo.</p><a class="btn primary" href="#/explorar">Volver a Explorar</a></section>';
  const s=topicState(t),sj=SUBJECTS[t.subject],f=UI.forma||1;
- const tabs=[[1,'Forma 1 · Laboratorio'],[2,'Forma 2 · Teoría y práctica guiada'],[3,'Forma 3 · Ráfaga y examen'],[4,'Forma 4 · Preguntas y tutor']];
+ const tabs=[[1,'Forma 1 · Laboratorio'],[2,'Forma 2 · Teoría y práctica guiada'],[3,'Forma 3 · Ráfaga y examen'],[4,'Forma 4 · Ayuda de Metax']];
  let panel='';
  if(f===1)panel=labHtml(t);
  else if(f===2){
-  panel='<div class="card stack"><h3>Teoría</h3>'+t.teoria.map(p=>'<p>'+esc(p)+'</p>').join('')+'</div>'+
-   '<div class="card stack"><h3>Expansión histórica</h3><p>'+esc(t.historia)+'</p>'+(t.personajes.length?'<h4 class="temah" style="margin:.4rem 0">Personajes históricos e influyentes</h4><ul class="pers">'+t.personajes.map(p=>'<li><strong>'+esc(p.n)+'</strong><br>'+esc(p.d)+'</li>').join('')+'</ul>':'')+'</div>'+
-   (t.formulas.length?'<div class="card stack"><h3>Fórmulas</h3><ul class="nlist">'+t.formulas.map(x=>'<li><strong>'+esc(x)+'</strong></li>').join('')+'</ul></div>':'')+
-   '<div class="card stack"><h3>Ejemplos paso a paso</h3>'+t.ejemplos.map((e,i)=>'<div class="panel ex"><h4 style="margin:0 0 .4rem">Ejemplo '+(i+1)+' · '+esc(e.t)+'</h4><ol class="nlist">'+e.pasos.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol></div>').join('')+'</div>';
+  // v0.003.1 · L1a: Forma 2 con bloques inconfundibles (teoría, expansión histórica, fórmulas y ejemplos)
+  panel='<div class="bloques">'+
+   bloque('teoria','Teoría',t.teoria.map(p=>'<p>'+esc(p)+'</p>').join(''))+
+   bloque('teoria','Expansión histórica','<p>'+esc(t.historia)+'</p>'+(t.personajes.length?'<h4 class="temah" style="margin:.4rem 0">Personajes históricos e influyentes</h4><ul class="pers">'+t.personajes.map(p=>'<li><strong>'+esc(p.n)+'</strong><br>'+esc(p.d)+'</li>').join('')+'</ul>':''))+
+   (t.formulas.length?bloque('formula','Fórmulas','<ul class="formulas">'+t.formulas.map(x=>'<li><code>'+esc(x)+'</code></li>').join('')+'</ul>'):'')+
+   t.ejemplos.map((e,i)=>bloque('ejemplo','Ejemplo '+(i+1)+' · '+e.t,'<ol class="nlist">'+e.pasos.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>')).join('')+
+  '</div>';
+ 
  }else if(f===3){
   panel='<div class="card stack"><h3>Ráfaga de este tema</h3><p class="muted">Preguntas rápidas de este tema y su unidad, con retroalimentación inmediata y sin culpa.</p><div><button class="btn" data-act="rafaga-tema" data-id="'+t.id+'">Empezar Ráfaga</button></div></div>'+
    '<div class="card stack"><h3>Simulador de examen</h3><p class="muted">Hasta 8 preguntas de la materia, sin pistas. Es práctica: no hay nota ni comparación.</p><label class="toggle"><span><strong>Temporizador opcional</strong><br><span class="small muted">30 segundos por pregunta, con opción de añadir tiempo.</span></span><input type="checkbox" data-bind="timer"'+(S.prefs.timer?' checked':'')+'></label><div><button class="btn" data-act="examen" data-id="'+t.id+'">Empezar simulador</button></div></div>';
@@ -1741,11 +1867,11 @@ function viewTopic(id){
    (t.cards.length>1?'<div class="field"><label class="lbl" for="qc">Tarjeta</label><select id="qc" data-bind="qcard">'+t.cards.map((c,i)=>'<option value="'+i+'"'+(i===ci?' selected':'')+'>'+esc(c.t)+'</option>').join('')+'</select></div>':'')+
    '<div class="row">'+[['hint','Pedir una pista'],['idea','Ver idea clave'],['ejemplo','Ver un ejemplo']].map(x=>'<button class="chip btnlike" data-act="quick" data-v="'+x[0]+'" aria-pressed="'+(UI.quick===x[0])+'">'+x[1]+'</button>').join('')+'</div>'+
    (UI.quick?'<div class="panel ex"><p>'+esc(m[UI.quick])+'</p></div>':'')+'</div>'+
-   '<div class="card stack"><h3>Tutor de Metax</h3><p class="muted">Pregunta una duda sobre este tema. El tutor recibe tu grado, la materia, la unidad y el tema que estás viendo.</p><div><button class="btn" data-act="tutor-open">Abrir el tutor</button></div>'+(S.dudas.length?'<p class="small muted">Tienes '+S.dudas.length+(S.dudas.length===1?' duda guardada.':' dudas guardadas.')+'</p>':'')+'</div>';
+   '<div class="card stack"><h3>Ayuda de Metax</h3><p class="muted">Guarda una duda sobre este tema o pide una pista. Si el tutor de texto está habilitado en este sitio, Metax también responde con el contexto del tema (grado, materia y unidad).</p><div><button class="btn" data-act="tutor-open">Ayuda con este tema</button></div>'+(S.dudas.length?'<p class="small muted">Tienes '+S.dudas.length+(S.dudas.length===1?' duda guardada.':' dudas guardadas.')+'</p>':'')+'</div>';
  }
  const src=t.fuente_oficial_url?'<a href="'+t.fuente_oficial_url+'" target="_blank" rel="noopener">Portal MINEDUCYT de referencia</a> (sin verificar el indicador exacto)':'Por identificar';
  return'<p><a href="#/explorar/'+t.subject+'">Volver a '+esc(sj.name)+'</a></p>'+
- '<header class="ph" style="margin-top:.6rem"><h1 tabindex="-1">'+esc(t.topic)+'</h1><p>'+esc(sj.name)+' · '+esc(t.unit)+'</p></header>'+
+ '<header class="ph" style="margin-top:.6rem"><h1 tabindex="-1">'+esc(t.topic)+'</h1><p>'+esc(sj.name)+' · '+esc(t.unit)+'</p><div class="row" style="margin-top:var(--sp-3)"><button class="btn sm" data-act="tutor-open">Ayuda con este tema</button></div></header>'+ /* v0.003.1 · L2a: entrada visible aunque el orbe esté apagado */
  '<div class="stack"><section class="card"><div class="row" style="justify-content:space-between"><span class="row">'+stIcon(s)+'<strong>'+STATE[s].l+'</strong></span><span class="badge">'+esc(valLabel(t))+'</span></div>'+
  '<p class="small muted" style="margin:.7rem 0 1rem">Completar tarjetas no es dominar un tema. Se marca «Dominado» cuando aciertas cada pregunta, sin ayuda y a la primera, en dos sesiones distintas.</p>'+
  '<button class="btn primary lg" data-act="start-topic" data-id="'+t.id+'">'+(s==='nuevo'?'Empezar microlección':'Continuar microlección')+'</button></section>'+
@@ -1766,7 +1892,19 @@ function viewNotas(){
  const n=TOPICS.length;
  return hdr('Notas de la versión','Qué cambió en cada versión de AI Metax, con transparencia.')+'<div class="stack">'+
  mx({state:'welcome',title:'Gracias por acompañar el desarrollo.',body:'Aquí ves lo que ya puedes usar y lo que todavía está en camino. Tu avance se conserva al actualizar.'})+
- '<section class="card"><div class="verh"><h2>Versión 0.003</h2><span class="badge">Actual</span></div><p class="muted small" style="margin:.3rem 0 .6rem">Todo lo de «Disponible ahora» está implementado en esta versión.</p>'+
+ '<section class="card"><div class="verh"><h2>Versión 0.003.1</h2><span class="badge">Actual</span></div><p class="muted small" style="margin:.3rem 0 .6rem">Todo lo de «Disponible ahora» está implementado en esta versión.</p>'+
+ '<h3>Disponible ahora · Estudiar con más claridad</h3>'+li([
+  'Seis tipos de bloque con su icono y su rótulo: Teoría, Ejemplo, Fórmula, Pista, Pregunta y Retroalimentación, en los temas y en las microlecciones.',
+  'En la práctica, el acierto se muestra en verde con el texto «Acierto» y la corrección, en ámbar con el texto «Explicación» o «Para revisar».'])+
+ '<h3 style="margin-top:1rem">Disponible ahora · Metax</h3>'+li([
+  'Una etiqueta junto al orbe indica qué puedes pedir («Pedir ayuda a Metax» o «Ayuda con este tema»). Se oculta mientras lees, practicas o usas Enfoque.',
+  'Al tocar a Metax, lo primero es la ayuda; el dato curioso queda en un desplegable.',
+  'Cada tema tiene un botón «Ayuda con este tema», aunque apagues el orbe.',
+  'Metax todavía no responde preguntas escritas en este sitio. Sí puedes pedir una pista del tema, ver la idea clave o un ejemplo, y guardar tus dudas.'])+
+ '<h3 style="margin-top:1rem">Disponible ahora · Primeros pasos</h3>'+li([
+  'Recorrido de bienvenida de 3 pasos para estudiantes nuevos, dentro del Escritorio. Se puede saltar y volver a abrir desde Perfil y desde la Guía rápida. Quienes ya usaban la app no lo reciben.',
+  'Nuevo interruptor «Efectos visuales intensos» en Perfil.'])+'</section>'+
+ '<section class="card"><div class="verh"><h2>Versión 0.003</h2></div><p class="muted small" style="margin:.3rem 0 .6rem">Todo lo de «Disponible ahora» está implementado en esta versión.</p>'+
  '<h3>Disponible ahora · Escritorio y herramientas</h3>'+li([
   '<strong>Escritorio de Estudio.</strong> Un panel central con tus materias, accesos directos, estado de avance y próximas tareas.',
   '<strong>Tareas.</strong> Organiza tus tareas con fecha, prioridad, notas y pasos; míralas por día (agenda) o en tablero. Las fechas pasadas aparecen como «Para reprogramar», sin alarmas.',
@@ -1783,6 +1921,7 @@ function viewNotas(){
   'Corregimos la burbuja de Metax: ahora se coloca hacia arriba o hacia abajo según el espacio disponible, y su texto y botones («Otro dato», «Preguntar al tutor», «Cerrar») quedan siempre visibles.'])+'</section>'+
  '<section class="card"><h2>Todavía no disponible</h2><p class="muted small" style="margin:.3rem 0 .6rem">Esto está en camino. No cuentes con ello todavía.</p>'+li([
   'Más temas por unidad en 7.º y temas completos para 8.º, 9.º, 1.º y 2.º de bachillerato: hoy solo algunas de sus unidades tienen temas publicados y el resto aparece como «Unidad en desarrollo».',
+  'Un rediseño de espaciados y jerarquía visual en el resto de la aplicación: por ahora solo se aplicó a los bloques de estudio.',
   'Tutor para todos los estudiantes: hoy solo responde si la plataforma lo permite en tu cuenta; si no, verás un aviso y podrás guardar tu duda.',
   'Validación docente, asignación de temas a grados concretos y confirmación de las unidades propuestas.'])+'</section>'+
  '<section class="card"><div class="verh"><h2>Versión 0.002</h2></div>'+li(['Metax flotante y arrastrable, apachurrón con datos curiosos, skins y voz por materia.','Cuatro formas de estudio por tema, pistas, reintentos y tutor condicionado a la plataforma.','Notas de la versión y aviso pasivo de novedades.'])+'</section>'+
@@ -1792,15 +1931,15 @@ function viewNotas(){
 /* ---------- Guía rápida (botón flotante) ---------- */
 const GUIA=[
  ['Tu Escritorio','Es tu punto de partida: ves tus materias, tu avance y accesos directos. «Seguir aprendiendo» te lleva al siguiente tema.'],
- ['Explorar','Elige una materia y verás sus 4 unidades. Cada tema completo tiene cuatro formas de estudiar: laboratorio, teoría con ejemplos paso a paso, ráfaga y examen, y preguntas con tutor.'],
- ['Metax','Toca a Metax para ver un dato curioso. Si tapa algo, arrástralo o muévelo con las flechas del teclado. En Perfil eliges su esquina o lo apagas.'],
+ ['Explorar','Elige una materia y verás sus 4 unidades. Cada tema completo tiene cuatro formas de estudiar: laboratorio, teoría con ejemplos paso a paso, ráfaga y examen, y ayuda de Metax.'],
+ ['Metax','Toca a Metax para pedir ayuda: pistas, idea clave, ejemplos y guardar dudas. El dato curioso está en un desplegable. Si tapa algo, arrástralo o muévelo con las flechas del teclado. En Perfil eliges su esquina o lo apagas.'],
  ['Zona de Repaso','Guarda lo que quieras repasar. Tú decides qué guardar y cuándo volver; pausar no tiene castigo.'],
  ['Tareas','Anota tus tareas, divídelas en pasos, ponles fecha y míralas por día o en tablero.'],
- ['Tutor','Si está disponible en tu cuenta, responde dudas del tema que estás viendo. Si no, puedes guardar tu duda para después.'],
+ ['Ayuda','Metax todavía no responde preguntas escritas en este sitio. Puedes pedir una pista del tema, ver la idea clave o un ejemplo, y guardar tu duda para después. Aunque apagues el orbe, el botón «Ayuda con este tema» sigue en cada tema.'],
  ['Tus datos','Tu avance, tareas y preferencias se guardan solo en este dispositivo. Puedes verlos o borrarlos en Perfil.']
 ];
 function renderGuia(){const r=$('#guia-root');if(r)r.innerHTML='<button class="gbtn" data-act="guia-open" aria-haspopup="dialog">Guía rápida</button>'}
-function guiaHtml(){return'<h2 id="dlgt">Guía rápida</h2><p class="muted small" style="margin-bottom:.6rem">Puedes volver cuando quieras. No hay nada que completar.</p><ol class="nlist">'+GUIA.map(x=>'<li><strong>'+esc(x[0])+'.</strong> '+esc(x[1])+'</li>').join('')+'</ol><div class="row" style="margin-top:1rem"><a class="btn sm" href="#/notas" data-act="dlg-close">Ver notas de la versión</a><button class="btn primary sm" data-act="dlg-close">Entendido</button></div>'}
+function guiaHtml(){return'<h2 id="dlgt">Guía rápida</h2><p class="muted small" style="margin-bottom:.6rem">Puedes volver cuando quieras. No hay nada que completar.</p><ol class="nlist">'+GUIA.map(x=>'<li><strong>'+esc(x[0])+'.</strong> '+esc(x[1])+'</li>').join('')+'</ol><div class="row" style="margin-top:1rem"><a class="btn sm" href="#/notas" data-act="dlg-close">Ver notas de la versión</a><button class="btn sm" data-act="tour-reopen">Ver el recorrido de bienvenida</button><button class="btn primary sm" data-act="dlg-close">Entendido</button></div>'}
 
 /* ---------- Repaso ---------- */
 function viewReview(){
@@ -1872,6 +2011,7 @@ function viewProfile(){
  '<section class="card"><h2 style="margin-bottom:.4rem">Preferencias</h2>'+
   '<label class="field" style="padding:.6rem 0"><span class="lbl">Modo de visualización</span><select data-bind="theme"><option value="auto"'+(pr.theme==='auto'?' selected':'')+'>Según mi dispositivo</option><option value="light"'+(pr.theme==='light'?' selected':'')+'>Claro</option><option value="dark"'+(pr.theme==='dark'?' selected':'')+'>Oscuro</option></select></label>'+
   tg('reduceMotion','Reducir animaciones','Quita movimiento decorativo.',pr.reduceMotion)+
+  tg('neon','Efectos visuales intensos','Solo se aplica en modo oscuro. Puede gastar más batería en móviles modestos.',pr.neon)+ /* FIX-004 */
   tg('orb','Mostrar el orbe de Metax','Es decorativo. Los mensajes de Metax siguen apareciendo como texto.',pr.orb)+
   tg('floatMetax','Metax flotante','Un acompañante que puedes arrastrar o mover con las flechas del teclado. Si lo apagas, no aparece en pantalla.',pr.floatMetax)+
   '<label class="field" style="padding:.6rem 0"><span class="lbl">Esquina de Metax</span><select data-bind="corner"><option value="">Elegir esquina…</option><option value="br">Abajo a la derecha</option><option value="bl">Abajo a la izquierda</option><option value="tr">Arriba a la derecha</option><option value="tl">Arriba a la izquierda</option></select></label>'+
@@ -1879,9 +2019,28 @@ function viewProfile(){
   tg('timer','Límite de tiempo en Ráfaga','Opcional; puedes añadir tiempo durante la pregunta.',pr.timer)+
   tg('gamif','Mostrar nivel, XP y racha','Son un extra visual. Nunca bloquean contenido ni se pierden por faltar un día.',pr.gamif)+
   tg('energy','Mostrar «Energía para aprender»','Una referencia que tú declaras; no mide nada.',pr.energy)+'</section>'+
+ '<section class="card"><h2 style="margin-bottom:.4rem">Ayuda</h2><div class="row"><button class="btn sm" data-act="tour-reopen">Ver el recorrido de bienvenida</button><button class="btn sm" data-act="guia-open">Guía rápida</button></div></section>'+
  '<section class="card"><h2 style="margin-bottom:.4rem">Tus datos</h2><p class="muted small">Tu avance se guarda solo en este dispositivo: respuestas, aciertos, duración de las tarjetas, preferencias y perfil. No se envía a ningún servidor.</p>'+
   '<div class="row" style="margin-top:.8rem"><button class="btn sm" data-act="show-data">Ver mis datos</button><button class="btn sm" data-act="reset-ask">Borrar mis datos</button></div></section>'+
-  '<p class="small muted">AI Metax v0.003 · Metax, tu copiloto de estudio. Contenido en demostración, sin validación docente. <a href="#/notas">Notas de la versión</a></p></div>';
+  '<p class="small muted">AI Metax <span data-version></span> · Metax, tu copiloto de estudio. Contenido en demostración, sin validación docente. <a href="#/notas">Notas de la versión</a></p></div>';
+}
+
+/* v0.003.1 · L1a: componente reutilizable de bloque de estudio.
+   Se distingue por estructura, rótulo (texto) e icono; el color solo acompaña. */
+const BL_IC={
+ teoria:'<path d="M5 4h9a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h9"/>',
+ ejemplo:'<circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/>',
+ formula:'<path d="M18 5H7l6 7-6 7h11"/>',
+ pista:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+ reto:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".8"/>',
+ ok:'<circle cx="12" cy="12" r="9"/><path d="M7.5 12.5l3 3 6-7"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>'
+};
+let blN=0;
+function bloque(tipo,rotulo,inner,o){
+ o=o||{};
+ const id='bl'+(++blN),H='h'+(o.nivel||3);
+ return'<section class="bloque bloque-'+tipo+(o.mod?' '+o.mod:'')+'" aria-labelledby="'+id+'"><header class="bloque-rot"><svg class="bloque-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">'+(BL_IC[o.icono||tipo]||'')+'</svg><'+H+' id="'+id+'" class="bloque-t">'+esc(rotulo)+'</'+H+'></header><div class="bloque-cuerpo">'+inner+'</div></section>';
 }
 
 /* ---------- Sesión ---------- */
@@ -1894,13 +2053,14 @@ function viewSession(){
   '<button class="btn sm" data-act="exit">Terminar sesión</button></div>'+
   '<div><div class="bar" aria-hidden="true"><i style="width:'+((s.i+(s.stage==='feedback'?1:0))/s.items.length*100)+'%"></i></div><p class="small muted" style="margin-top:.3rem">'+unitWord+' '+(s.i+1)+' de '+s.items.length+'</p></div>'+
   '<p id="focusnote" class="banner" role="status"'+(s.focusDone?'':' hidden')+'>Tu bloque terminó. Termina esta tarjeta y haremos el cierre.</p>';
- const qbox='<p id="qp" class="qprompt" tabindex="-1">'+esc(q.p)+'</p>';
+ // v0.003.1 · L1a: la pregunta de la tarjeta activa es un bloque «reto» (el id qp se conserva para el foco y las etiquetas)
+ const qbox=bloque('reto','Pregunta','<p id="qp" class="qprompt" tabindex="-1">'+esc(q.p)+'</p>',{nivel:2});
  const saveBtn=S.review[key]?'<span class="small muted">Guardada en tu Zona de Repaso.</span>':'<button class="btn" data-act="save-review" data-key="'+key+'">'+METAX.incorrecta.repaso+'</button>';
  const corr=q.type==='mcq'?q.o[q.a]:q.accept[0];
  let body='';
  if(s.stage==='learn'){
   body='<h1 id="cardh" tabindex="-1" style="font-size:1.4rem">'+esc(card.t)+'</h1>'+
-  '<div class="panel"><h3>Idea clave</h3><p>'+esc(card.idea)+'</p></div><div class="panel ex"><h3>Ejemplo</h3><p>'+esc(card.ejemplo)+'</p></div>'+
+  '<div class="bloques">'+bloque('teoria','Idea clave','<p>'+esc(card.idea)+'</p>',{nivel:2})+bloque('ejemplo','Ejemplo','<p>'+esc(card.ejemplo)+'</p>',{nivel:2})+'</div>'+
   '<div class="actions"><button class="btn primary lg" data-act="to-practice">Practicar</button></div>';
  }else if(s.stage==='practice'){
   let inputs='';
@@ -1912,24 +2072,29 @@ function viewSession(){
    (s.triedVals.length?'<p class="small muted" style="margin-top:.4rem">Ya probaste: '+s.triedVals.map(esc).join(', ')+'</p>':'')+'</div>';
   }
   const can=q.type==='mcq'?s.sel!=null:String(s.val).trim().length>0;
-  const hintPanel=!s.hint?'':(q.h?mx({state:'hint',subject:t.subject,size:48,title:METAX.pista.titulo,body:METAX.pista.texto(card.t,q.h)}):
-   mx({state:'hint',subject:t.subject,size:48,title:METAX.pista.titulo,body:METAX.incorrecta.sinPista,actions:'<button class="btn sm" data-act="show-expl">'+METAX.incorrecta.secundaria+'</button>'+saveBtn}));
+  // v0.003.1 · L1a: la pista es un bloque «pista» (ámbar, icono de bombilla, rótulo «Pista»)
+  const hintPanel=!s.hint?'':(q.h?bloque('pista','Pista','<p>'+esc(METAX.pista.texto(card.t,q.h))+'</p>',{nivel:2}):
+   bloque('pista','Pista','<p>'+esc(METAX.incorrecta.sinPista)+'</p><div class="actions"><button class="btn sm" data-act="show-expl">'+METAX.incorrecta.secundaria+'</button>'+saveBtn+'</div>',{nivel:2}));
   body=(s.qLeft!=null?'<div class="qt"><span id="qt">Tiempo: '+fmt(Math.max(0,s.qLeft))+'</span><div class="bar" aria-hidden="true"><i id="qtb" style="width:'+Math.max(0,s.qLeft/30*100)+'%"></i></div><button class="btn sm" data-act="more-time">+15 s</button></div>':'')+
   qbox+inputs+hintPanel+
   (s.mode!=='topic'?'<details class="panel"><summary>Ver idea clave</summary><p style="margin-top:.5rem">'+esc(card.idea)+'</p></details>':'')+
   '<div class="actions"><button class="btn primary lg" id="sub" data-act="submit"'+(can?'':' disabled')+'>Comprobar</button>'+(s.hint||s.examen?'':'<button class="btn" data-act="hint">'+METAX.pista.pedir+'</button>')+'</div>';
  }else if(s.stage==='retry'){
-  let extra='';
-  extra+='<p class="small">'+esc(vozOf(t.subject).apoyo)+'</p>';
+  // v0.003.1 · L1a: retroalimentación ámbar («Para revisar») + pista + (si hace falta) ejemplo
+  let extra='<p class="small">'+esc(vozOf(t.subject).apoyo)+'</p>';
   if(s.last&&s.last.timeout)extra+='<p class="small">'+METAX.incorrecta.tiempo+'</p>';
-  if(s.attempts>=2)extra+='<p>'+esc(METAX.incorrecta.repetido)+'</p><div class="panel ex"><h3>Ejemplo</h3><p>'+esc(card.ejemplo)+'</p></div>';
-  body=qbox+mx({state:'hint',tone:'warm',subject:t.subject,title:METAX.incorrecta.titulo,body:q.h?METAX.incorrecta.pista(card.t,q.h):METAX.incorrecta.sinPista,extra,
-   actions:'<button class="btn primary lg" data-act="retry-again">'+METAX.incorrecta.primaria+'</button><button class="btn" data-act="show-expl">'+METAX.incorrecta.secundaria+'</button>'+saveBtn});
+  if(s.attempts>=2)extra+='<p>'+esc(METAX.incorrecta.repetido)+'</p>';
+  const fb=bloque('feedback','Para revisar','<p><strong>'+esc(METAX.incorrecta.titulo)+'</strong></p>'+extra,{mod:'aviso',icono:'info',nivel:2});
+  const pista=bloque('pista','Pista','<p>'+esc(q.h?METAX.incorrecta.pista(card.t,q.h):METAX.incorrecta.sinPista)+'</p>',{nivel:2});
+  const ej=s.attempts>=2?bloque('ejemplo','Ejemplo','<p>'+esc(card.ejemplo)+'</p>',{nivel:2}):'';
+  body=qbox+'<div class="bloques">'+fb+pista+ej+'</div>'+
+   '<div class="actions"><button class="btn primary lg" data-act="retry-again">'+METAX.incorrecta.primaria+'</button><button class="btn" data-act="show-expl">'+METAX.incorrecta.secundaria+'</button>'+saveBtn+'</div>';
  }else{
   const L=s.last,sim=(!L.ok&&!s.simDone)?similarFor(it,s):null;
+  // v0.003.1 · L1a: verde con texto «Acierto» para el acierto; ámbar con texto «Explicación» para la corrección
   const panel=L.ok?
-   mx({state:'success',tone:'ok',subject:t.subject,title:METAX.correcta.titulo,body:(L.first?METAX.correcta.primera(card.t,q.e):METAX.correcta.corregida(card.t,q.e))+' '+vozOf(t.subject).acierto}):
-   mx({state:'idle',subject:t.subject,title:'Explicación',html:true,body:'La respuesta correcta es <strong>'+esc(corr)+'</strong>. '+esc(q.e)+(sim?' '+METAX.incorrecta.parecida:'')});
+   bloque('feedback','Acierto','<p><strong>'+esc(METAX.correcta.titulo)+'</strong></p><p>'+esc((L.first?METAX.correcta.primera(card.t,q.e):METAX.correcta.corregida(card.t,q.e))+' '+vozOf(t.subject).acierto)+'</p>',{mod:'ok',icono:'ok',nivel:2}):
+   bloque('feedback','Explicación','<p>La respuesta correcta es <strong>'+esc(corr)+'</strong>. '+esc(q.e)+(sim?' '+METAX.incorrecta.parecida:'')+'</p>',{mod:'aviso',icono:'info',nivel:2});
   body=qbox+panel+'<div class="actions"><button class="btn primary lg" data-act="next">'+(s.i>=s.items.length-1&&!sim?'Ver resultado':'Continuar')+'</button>'+
    (sim?'<button class="btn" data-act="similar">Probar una pregunta parecida</button>':'')+
    (s.mode==='topic'?'<button class="btn" data-act="reread">Leer la explicación otra vez</button>':'')+
@@ -2020,12 +2185,30 @@ function route(){
  const h=location.hash.replace(/^#\/?/,'').split('/');
  return{name:h[0]||'inicio',arg:h[1]};
 }
+// FIX-004: evitar neón en hardware modesto
+function neonSafe(){
+ try{
+  if(window.matchMedia('(prefers-reduced-transparency: reduce)').matches)return false;
+  const cores=navigator.hardwareConcurrency||2;
+  const mem=navigator.deviceMemory||4;
+  if(cores<4||mem<4)return false;
+  if(window.innerWidth<480&&cores<6)return false;
+  return true;
+ }catch(e){return false}
+}
 function applyPrefs(){
  const r=document.documentElement;
  if(S.prefs.theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',S.prefs.theme);
  if(S.prefs.reduceMotion)r.setAttribute('data-motion','reduced');else r.removeAttribute('data-motion');
  let dk=S.prefs.theme==='dark';if(S.prefs.theme==='auto'){try{dk=!!(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)}catch(e){}}
- r.setAttribute('data-neon',dk?'1':'0');
+ // FIX-004: el neón requiere modo oscuro, hardware capaz y que la persona no lo haya apagado
+ const neon=dk&&neonSafe()&&(S.prefs.neon!==false);
+ r.setAttribute('data-neon',neon?'1':'0');
+}
+// FIX-004: versión centralizada; se aplica tras cada render porque las vistas se regeneran con innerHTML
+function applyVersion(root){
+ if(!root||!root.querySelectorAll)return;
+ root.querySelectorAll('[data-version]').forEach(el=>{el.textContent='v'+APP_VERSION});
 }
 const VIEWS={inicio:viewHome,explorar:viewExplore,tema:viewTopic,repaso:viewReview,desafios:viewChallenges,enfoque:viewFocusSetup,progreso:viewProgress,perfil:viewProfile,notas:viewNotas,tareas:viewTareas};
 const ACTIVE={tema:'explorar',enfoque:'desafios',notas:'perfil'};
@@ -2048,9 +2231,9 @@ function render(){
    html=shell(v(r.arg),act);
   }
  }catch(err){console.error(err);html=viewError(err)}
- app.innerHTML=html;try{renderGuia();renderMetax();const sm=document.querySelector('.sim');if(sm)simUpdate(sm)}catch(e){console.error(e)}
+ app.innerHTML=html;applyVersion(app);try{renderGuia();renderMetax();const sm=document.querySelector('.sim');if(sm)simUpdate(sm)}catch(e){console.error(e)}
  const n=navOf(r.name);
- document.title=(n?n.label+' · ':'')+'AI Metax';
+ document.title=(n?n.label+' · ':'')+'AI Metax '+APP_VERSION; // FIX-004: versión centralizada
  const f=UI.focus&&$(UI.focus);
  UI.focus=null;
  const target=f||$('main h1')||$('#main h1')||$('#main');
@@ -2088,7 +2271,7 @@ const ACT={
  'ob-finish'(){
   const n=$('#obname');if(n)S.profile.name=n.value.trim();
   if(!S.profile.goal)S.profile.goal='explore';
-  S.profile.onboarded=true;S.profile.onboardStep=0;S.lastVisit=now();save();
+  S.profile.onboarded=true;S.profile.onboardStep=0;S.lastVisit=now();S.tour={done:false,step:0}; /* v0.003.1: recorrido solo para estudiantes nuevos */ save();
   if(location.hash==='#/inicio'||location.hash==='')render();else location.hash='#/inicio';
  },
  'start-topic'(d){const t=TOPIC[d.id];if(!t)return;startSession('topic',d.all?t.cards.map((c,i)=>({tid:t.id,ci:i})):topicItems(t),{tid:t.id})},
@@ -2143,9 +2326,20 @@ const ACT={
 
  'forma'(d){UI.forma=+d.v;render()},
  'mx-click'(){if(WID.justDragged)return;mxToggle()},
- 'mx-otro'(){mxFill(true,true)},
+ 'mx-otro'(){mxFill(true,true,true)},
  'mx-close'(){mxClose();const x=$('#mxbtn');if(x)x.focus()},
  'tutor-open'(){openTutor()},
+ 'tour-next'(){if(S.tour){S.tour.step=Math.min(2,(+S.tour.step||0)+1);save();UI.focus='#tourh';render()}},
+ 'tour-skip'(){S.tour={done:true,step:0};save();render()},
+ 'tour-start'(){
+  S.tour={done:true,step:0};save();
+  const r=recommend();
+  if(r&&r.kind==='topic')ACT['start-topic']({id:r.topic.id});
+  else{if(location.hash==='#/explorar')render();else location.hash='#/explorar'}
+ },
+ 'tour-reopen'(){S.tour={done:false,step:0};save();closeDlg();if(location.hash==='#/inicio'||location.hash==='')render();else location.hash='#/inicio'},
+ 
+
  'tutor-ask'(){tutorAsk()},
  'tutor-stop'(){if(UI.tutor.ctl)UI.tutor.ctl.abort()},
  'tutor-save'(){tutorSave()},
@@ -2207,6 +2401,7 @@ const BIND={
  timer(el){S.prefs.timer=el.checked;save()},
  gamif(el){S.prefs.gamif=el.checked;save()},
  energy(el){S.prefs.energy=el.checked;save()},
+ neon(el){S.prefs.neon=el.checked;save();render()}, // FIX-004
  orb(el){S.prefs.orb=el.checked;save();render()},
  floatMetax(el){S.prefs.floatMetax=el.checked;save();renderMetax()},
  corner(el){if(el.value)setCorner(el.value)},
@@ -2306,15 +2501,34 @@ function ctxSubject(){
  if(S.profile.onboarded&&S.profile.grade){const rc=recommend();if(rc&&rc.topic)return rc.topic.subject;if(UI.routeSubject)return UI.routeSubject}
  return null;
 }
+// v0.003.1 · L2a: etiqueta fija y contextual junto al orbe; ayuda primero, dato curioso secundario
+function mxContexto(){
+ if(UI.sess)return null; // durante lectura, práctica y Enfoque no hay etiqueta
+ const r=route();
+ if(r.name==='tema'&&TOPIC[r.arg])return{label:'Ayuda con este tema',tema:true};
+ return{label:'Pedir ayuda a Metax',tema:false};
+}
 function renderMetax(){
  const root=$('#metax-root');if(!root)return;
  if(!S.profile.onboarded||!S.prefs.floatMetax){root.innerHTML='';return}
- const sub=ctxSubject(),W=window.innerWidth||1024,H=window.innerHeight||768,wide=W>=900;
+ // FIX-004: usar visualViewport si está disponible (teclado móvil)
+ const vv=window.visualViewport;
+ const W=(vv&&vv.width)||window.innerWidth||1024;
+ const H=(vv&&vv.height)||window.innerHeight||768;
+ const wide=W>=900;
+ const sub=ctxSubject();
  const pos=S.prefs.pos||{r:wide?24:14,b:wide?24:92};
- const calm=!!(UI.sess&&UI.sess.mode==='enfoque'),size=calm?48:64;
+ const calm=!!UI.sess,size=calm?48:64; // v0.003.1: orbe compacto en toda sesión
  const r=Math.max(8,Math.min(pos.r,W-size-8)),b=Math.max(8,Math.min(pos.b,H-size-8));
- root.innerHTML='<div class="mxw'+(calm?' calm':'')+'" style="right:'+r+'px;bottom:'+b+'px"><div class="mxbub" id="mxbub" role="group" aria-label="Mensaje de Metax"'+(UI.bubble?'':' hidden')+'></div>'+
-  '<button class="mxbtn" id="mxbtn" data-act="mx-click" aria-expanded="'+(!!UI.bubble)+'" aria-controls="mxbub" aria-label="Metax, tu copiloto de estudio. Actívalo para ver un dato curioso. Con las flechas del teclado puedes moverlo.">'+orb({state:'idle',subject:sub,size,skin:skinOf(sub),force:true})+'</button></div>';
+ const cx=mxContexto();
+ let lbl='',lado=null;
+ if(cx){
+  const labW=Math.round(cx.label.length*8.6+34);
+  if(W-r-size>=labW+12)lado='izq';else if(r>=labW+12)lado='der';
+  if(lado)lbl='<span class="mxlbl mxlbl-'+lado+'" data-act="mx-click" aria-hidden="true">'+esc(cx.label)+'</span>';
+ }
+ root.innerHTML='<div class="mxw'+(calm?' calm':'')+'" style="right:'+r+'px;bottom:'+b+'px"><div class="mxbub" id="mxbub" role="group" aria-label="Mensaje de Metax"'+(UI.bubble?'':' hidden')+'></div>'+lbl+
+  '<button class="mxbtn" id="mxbtn" data-act="mx-click" aria-expanded="'+(!!UI.bubble)+'" aria-controls="mxbub" aria-label="Metax, tu copiloto de estudio. '+(cx?esc(cx.label)+'. ':'Ayuda disponible. ')+'Con las flechas del teclado puedes moverlo.">'+orb({state:'idle',subject:sub,size,skin:skinOf(sub),force:true})+'</button></div>';
  if(UI.bubble)mxFill(false,false);
 }
 /* Decide dónde poner la burbuja para que SIEMPRE quede completa en pantalla.
@@ -2335,18 +2549,21 @@ function mxFit(){
  const b=$('#mxbub'),w=$('.mxw');
  if(!b||!w||b.hidden||!w.getBoundingClientRect)return;
  b.style.maxHeight='';b.style.top='';b.style.bottom='';b.style.overflowY='';
- const r=w.getBoundingClientRect(),p=mxPlace({left:r.left,top:r.top,bottom:r.bottom,width:r.width},b.offsetWidth,b.offsetHeight,window.innerWidth,window.innerHeight);
+ const r=w.getBoundingClientRect(),p=mxPlace({left:r.left,top:r.top,bottom:r.bottom,width:r.width},b.offsetWidth,b.offsetHeight,(window.visualViewport&&window.visualViewport.width)||window.innerWidth,(window.visualViewport&&window.visualViewport.height)||window.innerHeight); // FIX-004: mismas medidas que renderMetax
  b.style.left=p.off+'px';
  if(p.side==='above')b.style.bottom='calc(100% + 8px)';else b.style.top='calc(100% + 8px)';
  if(p.maxH){b.style.maxHeight=p.maxH+'px';b.style.overflowY='auto'}
 }
-function mxFill(next,announce){
+function mxFill(next,announce,abierto){
  const sub=ctxSubject(),key=datoKey(sub),L=DATOS[key],sk=vozOf(sub);
  if(UI.dato[key]==null)UI.dato[key]=Math.floor(Math.random()*L.length);else if(next)UI.dato[key]=(UI.dato[key]+1)%L.length;
  const txt=L[UI.dato[key]],b=$('#mxbub');if(!b)return;
+ // v0.003.1 · L2a: primero la acción de ayuda; «Dato curioso» queda en un desplegable secundario; el cierre sigue visible
+ const ayuda=(UI.sess||(route().name==='tema'))?'Ayuda con este tema':'Pedir ayuda a Metax';
  b.innerHTML='<p class="small muted">'+esc(sk===SKIN_BASE?'Metax':sk.titulo)+'</p><p>'+esc(sk.saludo)+'</p>'+
-  '<div class="panel ex"><h3>Dato curioso</h3><p>'+esc(txt)+'</p></div>'+
-  '<div class="row"><button class="btn sm" data-act="mx-otro">Otro dato</button><button class="btn sm" data-act="tutor-open">Preguntar al tutor</button><button class="btn sm quiet" data-act="mx-close">Cerrar</button></div>';
+  '<div class="row"><button class="btn primary sm" data-act="tutor-open">'+ayuda+'</button></div>'+
+  '<details'+(abierto?' open':'')+'><summary>Dato curioso</summary><p>'+esc(txt)+'</p><button class="btn sm" data-act="mx-otro">Otro dato</button></details>'+
+  '<div class="row"><button class="btn sm quiet" data-act="mx-close">Cerrar</button></div>';
  b.hidden=false;mxFit();
  if(announce)setLive('Dato curioso. '+txt);
 }
@@ -2355,9 +2572,13 @@ function mxToggle(){
  const x=$('#mxbtn');
  if(x){x.classList.remove('squish');void x.offsetWidth;x.classList.add('squish')}
  if(UI.bubble){mxClose();return}
- UI.bubble=true;if(x)x.setAttribute('aria-expanded','true');mxFill(false,true);
+ UI.bubble=true;if(x)x.setAttribute('aria-expanded','true');mxFill(false,false);
 }
 window.addEventListener('resize',()=>{if(UI.bubble)mxFit()});
+// FIX-004: recolocar la burbuja cuando cambia el viewport visual (teclado virtual)
+if(window.visualViewport){
+ window.visualViewport.addEventListener('resize',()=>{if(UI.bubble)mxFit()});
+}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 document.addEventListener('pointerdown',e=>{
  const b=e.target.closest&&e.target.closest('#mxbtn');if(!b)return;
@@ -2600,20 +2821,20 @@ function openTutor(){mxClose();renderTutor();tutorProbe()}
 function renderTutor(){
  const T=UI.tutor,c=tutorCtx(),t=c.t;
  const ctx='<p class="small muted">'+esc(c.grado)+(t?' · '+esc(SUBJECTS[t.subject].name)+' · '+esc(t.unit)+' · '+esc(t.topic):' · sin tema seleccionado')+'</p>';
- let st='';
- if(T.status==='unknown'||T.status==='checking')st='<p role="status">Conectando con el tutor…</p>';
- else if(T.status==='off')st='<div class="panel"><p><strong>El tutor no está disponible ahora.</strong> Puedes ver la pista, abrir la explicación o guardar tu duda para después.</p></div>';
- else st='<p class="small muted">Respuesta generada por IA. Puede equivocarse: compárala con tu libro o con tu docente.</p>';
- const q=c.card?c.card.q:null;
- const quick=c.card?'<div class="row"><button class="chip btnlike" data-act="tutor-quick" data-v="hint">Pedir una pista</button><button class="chip btnlike" data-act="tutor-quick" data-v="idea">Ver idea clave</button><button class="chip btnlike" data-act="tutor-quick" data-v="ejemplo">Ver un ejemplo</button></div>':'';
- let qa='';
- if(c.card&&T.quick){const m={hint:q.h?METAX.pista.texto(c.card.t,q.h):METAX.incorrecta.sinPista,idea:c.card.idea,ejemplo:c.card.ejemplo};qa='<div class="panel ex"><p>'+esc(m[T.quick])+'</p></div>'}
+ // v0.003.1 · L2a: no se muestra «conectando» ni se promete nada hasta que el tutor de texto esté confirmado
  const ready=T.status==='ready';
- const form='<div class="field"><label class="lbl" for="tq">Escribe tu pregunta o tu duda</label><textarea id="tq" class="inp" style="min-height:90px;font-size:1rem" maxlength="500">'+esc(T.q)+'</textarea></div>'+
-  '<div class="row">'+(ready?'<button class="btn primary sm" data-act="tutor-ask"'+(T.busy?' disabled':'')+'>Preguntar</button>'+(T.busy?'<button class="btn sm" data-act="tutor-stop">Detener</button>':''):'')+'<button class="btn sm" data-act="tutor-save">Guardar mi duda</button></div>';
+ const st=ready?'<p class="small muted">Respuesta generada por IA. Puede equivocarse: compárala con tu libro o con tu docente.</p>':
+  '<div class="panel"><p>Metax todavía no responde preguntas escritas en este sitio. Puedes pedir una pista del tema, ver la idea clave o un ejemplo, y guardar tu duda para después.</p></div>';
+ const q=c.card?c.card.q:null;
+ const quick=c.card?'<div class="row"><button class="chip btnlike" data-act="tutor-quick" data-v="hint">Pedir una pista</button><button class="chip btnlike" data-act="tutor-quick" data-v="idea">Ver idea clave</button><button class="chip btnlike" data-act="tutor-quick" data-v="ejemplo">Ver un ejemplo</button></div>':'<p class="small muted">Abre un tema y vuelve aquí para pedir una pista, ver la idea clave o un ejemplo.</p>';
+ let qa='';
+ if(c.card&&T.quick){const m={hint:q.h?METAX.pista.texto(c.card.t,q.h):METAX.incorrecta.sinPista,idea:c.card.idea,ejemplo:c.card.ejemplo};qa=bloque(T.quick==='hint'?'pista':(T.quick==='idea'?'teoria':'ejemplo'),T.quick==='hint'?'Pista':(T.quick==='idea'?'Idea clave':'Ejemplo'),'<p>'+esc(m[T.quick])+'</p>',{nivel:3})}
+ const lbl=ready?'Escribe una duda sobre este tema':'Escribe una duda para guardarla';
+ const form='<div class="field"><label class="lbl" for="tq">'+lbl+'</label><textarea id="tq" class="inp" style="min-height:90px;font-size:1rem" maxlength="500">'+esc(T.q)+'</textarea></div>'+
+  '<div class="row">'+(ready?'<button class="btn primary sm" data-act="tutor-ask"'+(T.busy?' disabled':'')+'>Preguntar a Metax</button>'+(T.busy?'<button class="btn sm" data-act="tutor-stop">Detener</button>':''):'')+'<button class="btn'+(ready?'':' primary')+' sm" data-act="tutor-save">Guardar mi duda</button></div>';
  const ans=(T.busy||T.ans||T.msg)?'<div class="panel"><p class="tutxt" id="tans">'+esc(T.busy&&!T.ans?'Pensando…':(T.ans||T.msg))+'</p></div>':'';
  const du=S.dudas.length?'<div><h3 style="margin-bottom:.4rem">Dudas guardadas ('+S.dudas.length+')</h3><ul class="pers">'+S.dudas.slice(0,6).map(d=>'<li><span class="small muted">'+esc(d.where)+'</span><br>'+esc(d.text)+' <button class="btn sm quiet" data-act="tutor-del" data-id="'+d.id+'">Quitar</button></li>').join('')+'</ul></div>':'';
- openDlg('<h2 id="dlgt">Tutor de Metax</h2>'+ctx+st+quick+qa+form+ans+du+'<div class="row" style="margin-top:.8rem"><button class="btn sm" data-act="dlg-close">Cerrar</button></div>');
+ openDlg('<h2 id="dlgt">Ayuda de Metax</h2>'+ctx+st+quick+qa+form+ans+du+'<div class="row" style="margin-top:.8rem"><button class="btn sm" data-act="dlg-close">Cerrar</button></div>');
 }
 async function tutorAsk(){
  const T=UI.tutor;if(T.status!=='ready'||T.busy)return;
@@ -2645,6 +2866,9 @@ function tutorSave(){
 try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>render())}catch(e){}
 /* arranque */
 lastRoute=route().name;
+// FIX-004: versión centralizada
+document.querySelectorAll('[data-version]').forEach(el=>{el.textContent='v'+APP_VERSION});
+document.title='AI Metax '+APP_VERSION+' — Aprende a tu ritmo';
 render();
 </script>
 </body>
