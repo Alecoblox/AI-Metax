@@ -414,7 +414,7 @@ const GRADES=[
 const mcq=(p,o,a,e,h)=>({type:'mcq',p,o,a,e,h});
 const inp=(p,accept,e,h)=>({type:'input',p,accept,e,h});
 const C=(t,idea,ejemplo,q)=>({t,idea,ejemplo,q});
-const APP_VERSION='0.003.2';
+const APP_VERSION='0.003.3';
 const cicloOf=g=>(g==='7'||g==='8'||g==='9')?'tc':'em';
 const CICLOS={tc:'Tercer Ciclo (7.º a 9.º)',em:'Educación Media (1.º y 2.º de bachillerato)'};
 const SUBJECTS={
@@ -432,7 +432,7 @@ const SUBJECTS={
 const SUBJ_CICLO={tc:['mat','cfi','cyt','lyl','ing','cyv','adi'],em:['mat','qui','bio','fis','lyl','ing','cyv','adi']};
 /* =====================================================================
    MALLA POR GRADO (v0.003) — títulos tomados de la especificación del proyecto.
-   Cada materia tiene 4 unidades por grado. «Propuesta por Metax» = unidad
+   Cada materia tiene 4 unidades por grado, salvo Matemática de Tercer Ciclo (7.º, 8.º y 9.º), que tiene las 8 del programa oficial MINEDUCYT (2018). «Propuesta por Metax» = unidad
    que la especificación marca como propuesta; todo está pendiente de validar
    contra el programa oficial MINEDUCYT.
    ===================================================================== */
@@ -441,23 +441,52 @@ const PLAN={};
 function PL(g,sub,list,pre){
  (PLAN[g]=PLAN[g]||{})[sub]=list.map((x,i)=>{
   const a=Array.isArray(x)?x:[x];
-  return UN((pre||'Unidad')+' '+(i+1)+' · '+a[0],a[3]||[],Object.assign(a[1]?{propuesta:true}:{},a[2]?{periodo:a[2]}:{}));
+  return UN((pre||'Unidad')+' '+(i+1)+' · '+a[0],a[3]||[],Object.assign(a[1]?{propuesta:true}:{},a[2]?{periodo:a[2]}:{},a[4]||{})); // v0.003.3: a[4] = campos extra de la unidad (oficial, temasOficiales)
  });
 }
 const P=t=>[t,1];
-PL('7','mat',['Números positivos, negativos y el cero (operaciones y regla de tres)','Lenguaje algebraico y ecuaciones de primer grado','Plano cartesiano, funciones lineales y proporcionalidad directa','Geometría plana, áreas, perímetros y Teorema de Pitágoras']);
+// v0.003.3: unidad del programa oficial MINEDUCYT (Matemática, III ciclo, 2018). `temasOficiales` guarda el texto oficial de los subtemas; NO se muestra al estudiante.
+const OF=(t,sub)=>[t,0,0,[],{oficial:true,temasOficiales:sub}];
+PL('7','mat',[
+ OF('Números positivos, negativos y el cero','Números positivos, negativos, cero, orden y valor absoluto'),
+ OF('Suma y resta de números positivos, negativos y el cero','Suma, resta y operaciones combinadas'),
+ OF('Multiplicación y división de números positivos, negativos y el cero','Multiplicación, división, operaciones combinadas, primos y compuestos, mcm y MCD'),
+ OF('Comunicación con símbolos','Expresiones algebraicas, operaciones con expresiones algebraicas, representación de relaciones'),
+ OF('Ecuaciones de primer grado','Igualdad, propiedades, solución y aplicaciones'),
+ OF('Proporcionalidad directa e inversa','Definición, gráficas, regla de tres simple directa e inversa'),
+ OF('Gráfica de faja y circular','Lectura y construcción'),
+ OF('Figuras planas y construcción de cuerpos geométricos','Patrones, movimientos, círculos, segmentos, ángulos, planos, cuerpos geométricos y área total')
+]);
 PL('7','cfi',['Cinemática (rapidez, velocidad) y Dinámica (Leyes de Newton)','Trabajo mecánico, Energía y Mecánica de Fluidos (presión)','Termodinámica (calor/temperatura) y Electrostática (circuitos)',P('Ondas, luz y sonido')]);
 PL('7','cyt',[P('Indagación científica y Sistema Internacional de Unidades'),P('La célula y organización de los seres vivos'),P('Ecología, cadenas tróficas y conservación ambiental'),P('Evolución de la tecnología y materiales cotidianos')]);
 PL('7','lyl',['Comprensión lectora, idea principal y ortografía','Cuento popular, leyenda y mitología centroamericana','Poesía, estructura del poema y métrica básica','Texto dramático, teatro y exposición oral']);
 PL('7','ing',['Personal Information, Greetings & Verb To Be','Daily Routines, Simple Present & Hobbies','School, Community & Prepositions of Place','Basic Expressive Writing & Present Continuous']);
 PL('7','cyv',['Derechos Humanos, LEPINA y normas de convivencia','Historia, símbolos patrios e identidad salvadoreña',P('Participación, Constitución y democracia'),P('La familia, consumo responsable y economía')]);
-PL('8','mat',['Operaciones con polinomios y productos notables','Sistemas de ecuaciones lineales con dos incógnitas','Funciones lineales y pendiente de la recta','Paralelismo, cuadriláteros y geometría del círculo']);
+PL('8','mat',[
+ OF('Operaciones algebraicas','Expresiones algebraicas, operaciones con polinomios, valor numérico y aplicaciones'),
+ OF('Sistemas de ecuaciones de primer grado con dos incógnitas','Definición, métodos de solución, aplicaciones'),
+ OF('Función lineal','Definición, gráficas, ecuación de primer grado con dos incógnitas y su relación, aplicaciones'),
+ OF('Paralelismo y ángulos de un polígono','Ángulos internos y externos, opuestos por el vértice, entre paralelas cortadas por una secante, aplicaciones'),
+ OF('Criterios de congruencia de triángulos','Congruencia de figuras, criterios, aplicación'),
+ OF('Características de los triángulos y cuadriláteros','Triángulos isósceles y equiláteros, teoremas, recíproco y contraejemplo, congruencia de triángulos rectángulos, condiciones necesarias y suficientes, bisectrices, paralelogramos, rectángulo y rombo, líneas paralelas y áreas'),
+ OF('Área y volumen de sólidos geométricos','Definición y características, volumen, patrón del cono, área superficial'),
+ OF('Organización y análisis de datos estadísticos','Clasificación, tablas y gráficas para variables cuantitativas, medidas de tendencia central, notación científica, valor aproximado y dígitos significativos')
+]);
 PL('8','cfi',['Fuerzas en equilibrio y fricción','Energía potencial elástica y conservación de la energía','Dilatación térmica y calor específico',P('Electromagnetismo e inducción')]);
 PL('8','cyt',[P('Modelos atómicos y Tabla Periódica'),P('Genética mendeliana, mitosis y meiosis'),P('Tectónica de placas y geociencias'),P('Electrónica básica y lógica de programación')]);
 PL('8','lyl',['La novela corta y contexto social','Realismo literario e hispanoamericano','El ensayo argumentativo y oratoria','Comunicación digital y fake news']);
 PL('8','ing',['Simple Past Tense & Life Experiences','Future Tense (Going to / Will)','Comparatives & Superlatives','Health Issues & Modals (Should)']);
 PL('8','cyv',['Constitución de la República y Poderes del Estado','Historia del Siglo XX y Acuerdos de Paz de 1992',P('Cultura de paz y resolución de conflictos'),P('Presupuesto, ahorro y crédito')]);
-PL('9','mat',['Raíces cuadradas y números reales','Ecuaciones cuadráticas y fórmula general','Función cuadrática y = ax²','Semejanza de triángulos y Teorema de Tales']);
+PL('9','mat',[
+ OF('Multiplicación de polinomios','Desarrollo del producto de polinomios, productos notables, factorización'),
+ OF('Raíz cuadrada','Definición y sentido, números racionales e irracionales, números reales, operaciones con raíces cuadradas'),
+ OF('Ecuación cuadrática','Planteamiento, métodos de solución'),
+ OF('Función cuadrática de la forma y = ax² + c','Proporcionalidad con el cuadrado, gráfica, desplazamiento, dominio y rango'),
+ OF('Figuras semejantes','Segmentos proporcionales, homotecias, criterios de semejanza de triángulos, teorema de la base media, área y volumen de polígonos semejantes'),
+ OF('Teorema de Pitágoras','Cálculo de la hipotenusa de un triángulo, teorema de Pitágoras, cálculo de los catetos de un triángulo rectángulo'),
+ OF('Ángulo inscrito y central','Definición y medidas, ángulo semiinscrito'),
+ OF('Medidas de dispersión','Amplitud o rango, varianza, desviación típica')
+]);
 PL('9','cfi',['Movimiento circular uniforme y torque','Hidrostática, Principio de Arquímedes y Pascal','Espejos, lentes y óptica geométrica',P('Circuitos mixtos y electrónica moderna')]);
 PL('9','cyt',[P('Reacciones químicas, balanceo y pH'),P('Microbiología, sistema inmune y biotecnología'),P('Astronomía y evolución del Universo'),P('Energías renovables y desarrollo sostenible')]);
 PL('9','lyl',['Vanguardias literarias del siglo XX','Poesía social centroamericana','Ensayo filosófico y falacias lógicas','Investigación documental y normas APA']);
@@ -807,7 +836,7 @@ L3({id:'adi-sxxi',ciclos:ALL,subject:'adi',unit:'Módulo 4 · Habilidades del Si
 ];
 /* ===================== 7.º GRADO · temas nuevos (uno por unidad que faltaba) ===================== */
 LESSONS.push(
-L3({id:'mat-7-plano',subject:'mat',title:'Plano cartesiano y función lineal',skill:'Ubicar puntos y evaluar funciones lineales',diff:1,min:9,
+L3({id:'mat-7-plano',subject:'mat',notaUnidades:'Este tema cubre contenido de dos unidades del programa oficial: las gráficas de proporcionalidad (7.º, Unidad 6) y la función lineal y = mx + b (8.º, Unidad 3). Se ubica en 8.º porque su contenido principal, la función lineal, es de la Unidad 3 de 8.º. La parte de gráficas de proporcionalidad corresponde a 7.º, Unidad 6, y todavía no tiene un tema propio.',title:'Plano cartesiano y función lineal',skill:'Ubicar puntos y evaluar funciones lineales',diff:1,min:9,
  teoria:['El plano cartesiano está formado por dos rectas numéricas perpendiculares: el eje x (horizontal) y el eje y (vertical). Se cruzan en el origen (0, 0) y dividen el plano en cuatro cuadrantes.','Cada punto se describe con un par ordenado (x, y): primero se avanza en horizontal y luego en vertical. Por ejemplo, (3, −2) está 3 unidades a la derecha y 2 hacia abajo, en el cuadrante IV.','Una función lineal tiene la forma y = mx + b. Cuando b = 0 queda y = mx, que representa una proporcionalidad directa: su gráfica es una recta que pasa por el origen.'],
  historia:'El plano cartesiano lleva el nombre de René Descartes (en latín, Cartesius), quien en 1637 publicó «La Geometría» y mostró cómo describir figuras con coordenadas. Esa idea unió el álgebra con la geometría y permitió dibujar funciones.',
  personajes:[{n:'René Descartes',d:'Filósofo y matemático francés (1596–1650) que unió álgebra y geometría con el sistema de coordenadas.'}],
@@ -1097,7 +1126,7 @@ L3({id:'adi-web',subject:'adi',title:'Búsqueda web segura y netiqueta',skill:'N
 
 /* Temas ya escritos: grado, materia y número de unidad donde encajan en la malla. */
 const PLACE={
- 'mat-tc-prop':['7','mat',1],'mat-tc-lin':['7','mat',2],'mat-tc-pit':['7','mat',4],
+ 'mat-tc-prop':['7','mat',6],'mat-tc-lin':['7','mat',5],'mat-tc-pit':['9','mat',6], /* v0.003.3: malla oficial; Pitágoras pasa a 9.º */
  'mat-em-des':['b1','mat',1],'mat-em-cuad':['b1','mat',2],
  'cfi-mru':['7','cfi',1],'cfi-newton':['7','cfi',1],'cfi-arq':['9','cfi',2],
  'fis-newton':['b1','fis',2],'fis-arq':['b1','fis',4],
@@ -1106,7 +1135,7 @@ const PLACE={
  'cyt-mc':['7','cyt',1],'lyl-tc-ip':['7','lyl',1],'lyl-em-ret':['8','lyl',3],
  'ing-tc-tobe':['7','ing',1],'ing-em-pp':['9','ing',1],'cyv-dd':['7','cyv',1],
  'adi-nut':['7','adi',1],'adi-fin':['8','adi',2],'adi-pv':['7','adi',3],'adi-sxxi':['8','adi',4],
- 'mat-7-plano':['7','mat',3],'cfi-trabajo':['7','cfi',2],'cfi-calor':['7','cfi',3],'cfi-onda':['7','cfi',4],
+ 'mat-7-plano':['8','mat',3], /* v0.003.3 (ajuste): su contenido central, y = mx + b, es de 8.º Unidad 3 «Función lineal» (programa oficial 2018, p. 7) */'cfi-trabajo':['7','cfi',2],'cfi-calor':['7','cfi',3],'cfi-onda':['7','cfi',4],
  'cyt-celula':['7','cyt',2],'cyt-materiales':['7','cyt',4],'lyl-leyendas':['7','lyl',2],'lyl-poesia':['7','lyl',3],'lyl-drama':['7','lyl',4],
  'ing-sp':['7','ing',2],'ing-prep':['7','ing',3],'ing-pc':['7','ing',4],'cyv-simbolos':['7','cyv',2],'cyv-democracia':['7','cyv',3],'cyv-consumo':['7','cyv',4],
  'adi-fin7':['7','adi',2],'adi-web':['7','adi',4]
@@ -1200,8 +1229,11 @@ if(rejected.length){
  console.groupEnd();
 }
 const TOPIC=Object.fromEntries(TOPICS.map(t=>[t.id,t]));
-const valLabel=t=>{const u=(outlineOf(t.subject,t.grados[0])||[]).find(x=>x.u===t.unit);return(u&&!u.propuesta)?'Basado en el temario compartido · pendiente de validar':'Propuesta de Metax · pendiente de validar'};
-const valShort=t=>valLabel(t).startsWith('Basado')?'Temario compartido · por validar':'Propuesta · por validar';
+// v0.003.3: las unidades marcadas «oficial» (Matemática de Tercer Ciclo, programa MINEDUCYT 2018) tienen su propia etiqueta de fuente
+const VAL_OFICIAL='Unidad del programa oficial MINEDUCYT (Matemática, III ciclo, 2018) · contenido de demostración, sin validación docente';
+const esOficial=t=>{const u=(outlineOf(t.subject,t.grados[0])||[]).find(x=>x.u===t.unit);return!!(u&&u.oficial)};
+const valLabel=t=>{const u=(outlineOf(t.subject,t.grados[0])||[]).find(x=>x.u===t.unit);if(u&&u.oficial)return VAL_OFICIAL;return(u&&!u.propuesta)?'Basado en el temario compartido · pendiente de validar':'Propuesta de Metax · pendiente de validar'};
+const valShort=t=>esOficial(t)?'Programa oficial · demostración':(valLabel(t).startsWith('Basado')?'Temario compartido · por validar':'Propuesta · por validar');
 function subjectsFor(g){return g?SUBJ_CICLO[cicloOf(g)].slice():[]}
 function topicsFor(g,subject){
  const subs=subjectsFor(g);
@@ -1553,6 +1585,21 @@ if(METAX_DEBUG){
   };
   console.group('[Metax audit] Integridad del catálogo');
   Object.entries(audit).forEach(([k,v])=>{if(v.length)console.warn(k+':',v)});
+  // v0.003.3: Matemática de Tercer Ciclo. Se comprueba desde las fuentes (malla y tabla de ubicación): un tema con unidad inexistente queda sin grado y un filtro por grado no lo vería.
+  const MAT_TC=['7','8','9'];
+  MAT_TC.forEach(g=>{const o=outlineOf('mat',g);if(!o||o.length!==8)console.warn('[Metax audit] Matemática de Tercer Ciclo: la malla de '+g+'.º no tiene exactamente 8 unidades (tiene '+(o?o.length:0)+')')});
+  const sinUnidadMat=new Set();
+  Object.entries(PLACE).forEach(([id,p])=>{
+   if(p[1]!=='mat'||!MAT_TC.includes(p[0]))return;
+   const o=outlineOf('mat',p[0])||[];
+   if(!Number.isInteger(p[2])||p[2]<1||p[2]>o.length)sinUnidadMat.add(id);
+  });
+  LESSONS.forEach(t=>{
+   const p=PLACE[t.id];
+   if(!p||p[1]!=='mat'||!MAT_TC.includes(p[0]))return;
+   if(!(outlineOf('mat',p[0])||[]).some(u=>u.u===t.unit))sinUnidadMat.add(t.id);
+  });
+  [...sinUnidadMat].forEach(id=>console.warn('[Metax audit] Tema de Matemática sin unidad válida: '+id));
   // v0.003.2: tarjetas sin pista. Acceso seguro: una tarjeta mal formada (sin q, sin h, h no textual, vacía o solo espacios) se cuenta y se avisa; es solo informativo, no bloquea la publicación.
   let totalTarjetas=0;const sinPista=[];
   LESSONS.forEach(t=>{
@@ -1796,7 +1843,7 @@ function lessonRow(t){
 }
 function viewExplore(arg){
  const g=S.profile.grade,ciclo=cicloOf(g),gl=gradeLabel(g);
- const bar='<p class="muted" style="margin-bottom:.4rem">Grado: <strong>'+esc(gl)+'</strong> · '+esc(CICLOS[ciclo])+' · <a href="#/perfil">Cambiar en Perfil</a></p><p class="small muted" style="margin-bottom:1rem">Cada materia se organiza en 4 unidades. Solo se publican los temas que ya están completos; la asignación a cada grado y las unidades propuestas por Metax están pendientes de validar.</p>';
+ const bar='<p class="muted" style="margin-bottom:.4rem">Grado: <strong>'+esc(gl)+'</strong> · '+esc(CICLOS[ciclo])+' · <a href="#/perfil">Cambiar en Perfil</a></p><p class="small muted" style="margin-bottom:1rem">Cada materia se organiza en unidades. La malla de Matemática de Tercer Ciclo sigue el programa oficial MINEDUCYT; las demás materias siguen el temario compartido y están pendientes de validar, igual que las unidades marcadas «Propuesta por Metax». Solo se publican los temas que ya están completos.</p>';
  if(arg&&SUBJECTS[arg]&&subjectsFor(g).includes(arg)){
   const S2=SUBJECTS[arg],outline=outlineOf(arg,g)||[],lessons=topicsFor(g,arg),f=UI.filter;
   const back='<p><a href="#/explorar">Volver a Explorar</a></p><header class="ph" style="margin-top:.6rem"><div class="row">'+subjIcon(arg)+'<h1 tabindex="-1">'+esc(S2.name)+'</h1></div></header>'+bar;
@@ -1860,7 +1907,7 @@ function viewTopic(id){
  const src=t.fuente_oficial_url?'<a href="'+t.fuente_oficial_url+'" target="_blank" rel="noopener">Portal MINEDUCYT de referencia</a> (sin verificar el indicador exacto)':'Por identificar';
  return'<p><a href="#/explorar/'+t.subject+'">Volver a '+esc(sj.name)+'</a></p>'+
  '<header class="ph" style="margin-top:.6rem"><h1 tabindex="-1">'+esc(t.topic)+'</h1><p>'+esc(sj.name)+' · '+esc(t.unit)+'</p><div class="row" style="margin-top:var(--sp-3)"><button class="btn sm" data-act="tutor-open">Ayuda con este tema</button></div></header>'+ /* v0.003.1 · L2a: entrada visible aunque el orbe esté apagado */
- '<div class="stack"><section class="card"><div class="row" style="justify-content:space-between"><span class="row">'+stIcon(s)+'<strong>'+STATE[s].l+'</strong></span><span class="badge">'+esc(valLabel(t))+'</span></div>'+
+ '<div class="stack"><section class="card"><div class="row" style="justify-content:space-between"><span class="row">'+stIcon(s)+'<strong>'+STATE[s].l+'</strong></span><span class="badge">'+esc(esOficial(t)?'Programa oficial MINEDUCYT (2018) · demostración':valLabel(t))+'</span></div>'+
  '<p class="small muted" style="margin:.7rem 0 1rem">Completar tarjetas no es dominar un tema. Se marca «Dominado» cuando aciertas cada pregunta, sin ayuda y a la primera, en dos sesiones distintas.</p>'+
  '<button class="btn primary lg" data-act="start-topic" data-id="'+t.id+'">'+(s==='nuevo'?'Empezar microlección':'Continuar microlección')+'</button></section>'+
  '<section aria-labelledby="fh"><h2 id="fh" class="sr">Cuatro formas de estudiar este tema</h2><div class="tabs" role="tablist" aria-label="Cuatro formas de estudiar este tema">'+tabs.map(x=>'<button class="tab" role="tab" id="tab'+x[0]+'" aria-selected="'+(f===x[0])+'" aria-controls="tp" data-act="forma" data-v="'+x[0]+'">'+x[1]+'</button>').join('')+'</div>'+
@@ -1871,7 +1918,7 @@ function viewTopic(id){
  '<dt>País</dt><dd>El Salvador</dd><dt>Ciclo</dt><dd>'+esc(t.ciclos.map(c=>CICLOS[c]).join(' y '))+'</dd><dt>Grado</dt><dd>'+esc(gradeLabel(t.grados[0]))+' (según la especificación; pendiente de validar)</dd><dt>Asignatura</dt><dd>'+esc(sj.name)+'</dd><dt>Unidad</dt><dd>'+esc(t.unit)+'</dd>'+
  '<dt>Tema del temario</dt><dd>'+esc(t.temario||'Sin tema asignado')+'</dd><dt>Microlección</dt><dd>'+esc(t.topic)+'</dd><dt>Habilidad</dt><dd>'+esc(t.habilidad)+'</dd>'+
  '<dt>Indicador de logro</dt><dd>Pendiente de verificar en el programa oficial</dd><dt>Dificultad</dt><dd>'+['','Básica','Intermedia','Avanzada'][t.nivel_de_dificultad]+'</dd><dt>Duración</dt><dd>'+t.duracion_estimada+' min</dd>'+
- '<dt>Fuente oficial</dt><dd style="font-weight:400">'+src+'</dd><dt>Validación</dt><dd>'+esc(valLabel(t))+'. Contenido de demostración, sin validación docente.</dd></dl></section></div>';
+ '<dt>Fuente oficial</dt><dd style="font-weight:400">'+src+'</dd><dt>Validación</dt><dd>'+esc(valLabel(t))+(esOficial(t)?'':'. Contenido de demostración, sin validación docente.')+'</dd>'+(t.notaUnidades?'<dt>Nota</dt><dd>'+esc(t.notaUnidades)+'</dd>':'')+'</dl></section></div>';
 }
 
 /* ---------- Notas de la versión ---------- */
@@ -1880,7 +1927,15 @@ function viewNotas(){
  const n=TOPICS.length;
  return hdr('Notas de la versión','Qué cambió en cada versión de AI Metax, con transparencia.')+'<div class="stack">'+
  mx({state:'welcome',title:'Gracias por acompañar el desarrollo.',body:'Aquí ves lo que ya puedes usar y lo que todavía está en camino. Tu avance se conserva al actualizar.'})+
- '<section class="card"><div class="verh"><h2>Versión 0.003.2</h2><span class="badge">Actual</span></div><p class="muted small" style="margin:.3rem 0 .6rem">Esta versión no cambia lo que ves al estudiar. Tu avance se conserva.</p>'+
+ '<section class="card"><div class="verh"><h2>Versión 0.003.3</h2><span class="badge">Actual</span></div><p class="muted small" style="margin:.3rem 0 .6rem">Tu avance se conserva al actualizar.</p>'+
+ '<h3>Disponible ahora · Catálogo de Matemática</h3>'+li([
+  'Reestructuración del catálogo de Matemática de Tercer Ciclo para alinearlo con la malla oficial MINEDUCYT (8 unidades por grado en 7.º, 8.º y 9.º).',
+  'Los temas existentes se reubicaron en sus unidades correctas. Ningún tema se perdió.',
+  'El Teorema de Pitágoras se reubicó de 7.º grado a 9.º grado, donde corresponde según MINED.',
+  'Si ya habías practicado el Teorema de Pitágoras en 7.º, tu avance se conserva y reaparece en 9.º.',
+  'Si ya habías practicado «Plano cartesiano y función lineal» en 7.º, tu avance se conserva y reaparece en 8.º.',
+  'Muchas de las nuevas unidades de Matemática aparecen como «Unidad en desarrollo». Las demás materias mantienen sus unidades actuales.'])+'</section>'+
+ '<section class="card"><div class="verh"><h2>Versión 0.003.2</h2></div><p class="muted small" style="margin:.3rem 0 .6rem">Esta versión no cambia lo que ves al estudiar. Tu avance se conserva.</p>'+
  '<h3>Disponible ahora · Mantenimiento</h3>'+li([
   'Se añade una auditoría de desarrollo que informa cuántas tarjetas no tienen pista y, si las hay, las identifica en consola con ?debug=1.',
   'Se valida el estado guardado del recorrido de bienvenida; el progreso y la clave de almacenamiento se conservan.',
@@ -1924,7 +1979,7 @@ function viewNotas(){
 /* ---------- Guía rápida (botón flotante) ---------- */
 const GUIA=[
  ['Tu Escritorio','Es tu punto de partida: ves tus materias, tu avance y accesos directos. «Seguir aprendiendo» te lleva al siguiente tema.'],
- ['Explorar','Elige una materia y verás sus 4 unidades. Cada tema completo tiene cuatro formas de estudiar: laboratorio, teoría con ejemplos paso a paso, ráfaga y examen, y ayuda de Metax.'],
+ ['Explorar','Elige una materia y verás sus unidades. Cada tema completo tiene cuatro formas de estudiar: laboratorio, teoría con ejemplos paso a paso, ráfaga y examen, y ayuda de Metax.'],
  ['Metax','Toca a Metax para pedir ayuda: pistas, idea clave, ejemplos y guardar dudas. El dato curioso está en un desplegable. Si tapa algo, arrástralo o muévelo con las flechas del teclado. En Perfil eliges su esquina o lo apagas.'],
  ['Zona de Repaso','Guarda lo que quieras repasar. Tú decides qué guardar y cuándo volver; pausar no tiene castigo.'],
  ['Tareas','Anota tus tareas, divídelas en pasos, ponles fecha y míralas por día o en tablero.'],
