@@ -414,7 +414,7 @@ const GRADES=[
 const mcq=(p,o,a,e,h)=>({type:'mcq',p,o,a,e,h});
 const inp=(p,accept,e,h)=>({type:'input',p,accept,e,h});
 const C=(t,idea,ejemplo,q)=>({t,idea,ejemplo,q});
-const APP_VERSION='0.003.1';
+const APP_VERSION='0.003.2';
 const cicloOf=g=>(g==='7'||g==='8'||g==='9')?'tc':'em';
 const CICLOS={tc:'Tercer Ciclo (7.º a 9.º)',em:'Educación Media (1.º y 2.º de bachillerato)'};
 const SUBJECTS={
@@ -1248,6 +1248,9 @@ function migrate(data){
   }));
   data.v=2;
  }
+ // v0.003.2: valida SOLO el campo tour (siempre, también con esquema 2). No toca ningún otro dato del estado.
+ const tr=data.tour;
+ if(!tr||typeof tr!=='object'||Array.isArray(tr)||typeof tr.done!=='boolean')data.tour={done:true,step:0};
  return data;
 }
 function load(){
@@ -1257,7 +1260,12 @@ function load(){
  try{
   const o=JSON.parse(raw),d=defaults();
   const merged=Object.assign(d,o,{profile:Object.assign(d.profile,o.profile||{}),prefs:Object.assign(d.prefs,o.prefs||{})});
-  return migrate(merged); // FIX-004
+  // v0.003.2: si migrate() fallara, se conserva el estado ya fusionado en lugar de caer en defaults() y perder el avance en silencio.
+  // Solo en esta ruta de fallo se descarta de la lista de tareas lo que no sea un objeto, para que la app pueda abrir; lo demás no se toca.
+  try{return migrate(merged)}catch(e){
+   merged.tareas=Array.isArray(merged.tareas)?merged.tareas.filter(x=>x&&typeof x==='object'):[];
+   return merged;
+  } // FIX-004
  }catch(e){return defaults()}
 }
 let S=load();
@@ -1528,63 +1536,43 @@ const METAX={
  pausa:'Tu avance quedó guardado. Puedes volver cuando te venga bien.',
  vacia:'Esta ruta todavía no tiene microlecciones. Puedes explorar otra materia mientras la preparamos.'
 };
-/* Pistas ancladas a la idea de cada tarjeta (las que no traen pista propia). */
-const PISTAS={
- 'lyl-b2-pp#1':'Piensa en cómo se conservaban las obras antes de la escritura y qué pasó después con las transcripciones.',
- 'lyl-b2-en#0':'La tesis es la postura que el autor quiere demostrar con sus argumentos.',
- 'cyt-b2-ge#1':'Cada base tiene una pareja fija; repasa los dos pares.',
- 'cyt-b2-ss#0':'Recuerda cuáles planetas son interiores y rocosos; el gigante gaseoso está entre los exteriores.',
- 'cyt-b2-ec#0':'El productor fabrica su propio alimento y es el primer eslabón de la cadena.',
- 'mat-b1-es#0':'Suma todos los datos y divide entre cuántos son.',
- 'mat-b1-es#1':'La moda es el dato que más veces aparece.',
- 'mat-b1-de#0':'Resuelve como una ecuación: suma 5 en ambos lados y luego divide entre 3.',
- 'cyt-7-mc#0':'Una hipótesis es una respuesta posible que puede ponerse a prueba.',
- 'ing-7-ps#0':'Con he, she e it el verbo termina en -s.',
- 'cyv-7-cp#0':'Busca la opción que incluya escuchar y llegar a un acuerdo.',
- 'edf-7-af#0':'Recuerda la cifra diaria que recomienda la OMS, en minutos y en promedio.',
- 'cyv-8-dd#0':'Un deber es algo que haces para que todos puedan convivir y ejercer sus derechos.',
- 'edf-8-ca#0':'Piensa en lo que el calentamiento hace con la temperatura del cuerpo y los músculos.',
- 'lyl-8-ip#0':'Las ideas secundarias giran alrededor de la idea principal.',
- 'cyt-9-ce#0':'Compara qué estructura tienen las eucariotas que las procariotas no tienen.',
- 'lyl-9-tn#0':'La trama sigue un orden: planteamiento, nudo y desenlace. ¿En cuál crece el conflicto?',
- 'cyv-9-dr#0':'Antes de elegir, necesitas saber qué opciones tienes y qué podría pasar con cada una.',
- 'ing-b-pp#0':'Con he, she e it se usa has + participio pasado.',
- 'cc-b-al#0':'Piensa en una receta: ¿cómo son sus pasos?',
- 'fye-b-pp#0':'Resta los gastos de los ingresos.',
- 'pvc-b-me#0':'Busca la meta que tenga cantidad, frecuencia y plazo.'
-};
-// FIX-004: avisar de pistas huérfanas o duplicadas (los avisos solo salen con ?debug=1 para no ensuciar la consola del usuario)
-const METAX_DEBUG=/[?&]debug=1/.test(location.search);
-Object.keys(PISTAS).forEach(k=>{
- const p=k.split('#'),t=TOPIC[p[0]],c=t&&t.cards[+p[1]];
- if(!t){if(METAX_DEBUG)console.warn('[Metax] Pista huérfana (tema):',k);return}
- if(!c){if(METAX_DEBUG)console.warn('[Metax] Pista huérfana (tarjeta):',k);return}
- if(c.q.h){if(METAX_DEBUG)console.warn('[Metax] Pista duplicada:',k);return}
- c.q.h=PISTAS[k];
-});
-// FIX-004: auditoría de integridad del catálogo (solo en modo debug). Va aquí, después de declarar PISTAS, porque un const no se puede leer antes de su declaración.
+// v0.003.2: guardia de depuración. Se mantiene porque la usan la auditoría y el diagnóstico.
+// El parámetro debe ser exactamente debug=1: ?debug=10 o ?debug=123 NO activan el modo debug.
+const METAX_DEBUG=(()=>{try{return new URLSearchParams(location.search).get('debug')==='1'}catch(e){return false}})();
+// v0.003.2: auditoría de integridad del catálogo (solo con ?debug=1). Nunca debe romper el arranque.
 if(METAX_DEBUG){
- const lessonIds=new Set(LESSONS.map(t=>t.id));
- const placeIds=new Set(Object.keys(PLACE));
- const guiaIds=new Set(Object.keys(GUIA_TUTOR));
- const pistaIds=new Set(Object.keys(PISTAS).map(k=>k.split('#')[0]));
- const audit={
-  'PISTAS → tema inexistente':[...pistaIds].filter(x=>!lessonIds.has(x)),
-  'PLACE → tema inexistente':[...placeIds].filter(x=>!lessonIds.has(x)),
-  'GUIA_TUTOR → tema inexistente':[...guiaIds].filter(x=>!lessonIds.has(x)),
-  'LESSONS sin PLACE':[...lessonIds].filter(x=>!placeIds.has(x)),
-  'LESSONS sin GUIA_TUTOR':[...lessonIds].filter(x=>!guiaIds.has(x)),
-  'LESSONS sin PISTAS':[...lessonIds].filter(x=>!pistaIds.has(x))
- };
- console.group('[Metax audit] Integridad del catálogo');
- Object.entries(audit).forEach(([k,v])=>{if(v.length)console.warn(k+':',v)});
- // FIX-004: verificación temporal de la copia profunda (tarea 3): mutar un clon no debe afectar al original
- if(TOPIC['cfi-newton']&&TOPIC['fis-newton']){
-  const a=TOPIC['cfi-newton'].cards[0].q,b=TOPIC['fis-newton'].cards[0].q,keep=a.h;
-  a.h='__prueba__';const indep=b.h!=='__prueba__'&&TOPIC['cfi-newton'].cards!==TOPIC['fis-newton'].cards;a.h=keep;
-  console.log('[Metax audit] clone independiente (cfi-newton vs fis-newton):',indep);
- }
- console.groupEnd();
+ try{
+  const lessonIds=new Set(LESSONS.map(t=>t.id));
+  const placeIds=new Set(Object.keys(PLACE));
+  const guiaIds=new Set(Object.keys(GUIA_TUTOR));
+  const audit={
+   'PLACE → tema inexistente':[...placeIds].filter(x=>!lessonIds.has(x)),
+   'GUIA_TUTOR → tema inexistente':[...guiaIds].filter(x=>!lessonIds.has(x)),
+   'LESSONS sin PLACE':[...lessonIds].filter(x=>!placeIds.has(x)),
+   'LESSONS sin GUIA_TUTOR':[...lessonIds].filter(x=>!guiaIds.has(x))
+  };
+  console.group('[Metax audit] Integridad del catálogo');
+  Object.entries(audit).forEach(([k,v])=>{if(v.length)console.warn(k+':',v)});
+  // v0.003.2: tarjetas sin pista. Acceso seguro: una tarjeta mal formada (sin q, sin h, h no textual, vacía o solo espacios) se cuenta y se avisa; es solo informativo, no bloquea la publicación.
+  let totalTarjetas=0;const sinPista=[];
+  LESSONS.forEach(t=>{
+   if(!Array.isArray(t.cards)){console.warn('Tema sin lista de tarjetas:',t&&t.id);return}
+   t.cards.forEach((c,i)=>{
+    totalTarjetas++;
+    const h=c&&c.q&&c.q.h;
+    if(typeof h!=='string'||!h.trim())sinPista.push(t.id+'#'+i+(c&&typeof c.t==='string'?' ('+c.t+')':''));
+   });
+  });
+  const resumenPistas=sinPista.length+' de '+totalTarjetas+' tarjetas sin pista';
+  if(sinPista.length){console.warn(resumenPistas);console.warn('Tarjetas sin pista:',sinPista)}else console.log(resumenPistas);
+  // verificación de la copia profunda de los clones: mutar uno no debe afectar al original
+  if(TOPIC['cfi-newton']&&TOPIC['fis-newton']){
+   const a=TOPIC['cfi-newton'].cards[0].q,b=TOPIC['fis-newton'].cards[0].q,keep=a.h;
+   a.h='__prueba__';const indep=b.h!=='__prueba__'&&TOPIC['cfi-newton'].cards!==TOPIC['fis-newton'].cards;a.h=keep;
+   console.log('[Metax audit] clone independiente (cfi-newton vs fis-newton):',indep);
+  }
+  console.groupEnd();
+ }catch(e){console.warn('[Metax audit] la auditoría no pudo completarse:',e&&e.message)}
 }
 
 /* Anillos: solo hitos de aprendizaje verificados (nunca tiempo, visitas, rachas ni clics). */
@@ -1892,7 +1880,12 @@ function viewNotas(){
  const n=TOPICS.length;
  return hdr('Notas de la versión','Qué cambió en cada versión de AI Metax, con transparencia.')+'<div class="stack">'+
  mx({state:'welcome',title:'Gracias por acompañar el desarrollo.',body:'Aquí ves lo que ya puedes usar y lo que todavía está en camino. Tu avance se conserva al actualizar.'})+
- '<section class="card"><div class="verh"><h2>Versión 0.003.1</h2><span class="badge">Actual</span></div><p class="muted small" style="margin:.3rem 0 .6rem">Todo lo de «Disponible ahora» está implementado en esta versión.</p>'+
+ '<section class="card"><div class="verh"><h2>Versión 0.003.2</h2><span class="badge">Actual</span></div><p class="muted small" style="margin:.3rem 0 .6rem">Esta versión no cambia lo que ves al estudiar. Tu avance se conserva.</p>'+
+ '<h3>Disponible ahora · Mantenimiento</h3>'+li([
+  'Se añade una auditoría de desarrollo que informa cuántas tarjetas no tienen pista y, si las hay, las identifica en consola con ?debug=1.',
+  'Se valida el estado guardado del recorrido de bienvenida; el progreso y la clave de almacenamiento se conservan.',
+  'Se añade un título de tarjeta para lectores de pantalla en las etapas de práctica, reintento y explicación.'])+'</section>'+
+ '<section class="card"><div class="verh"><h2>Versión 0.003.1</h2></div><p class="muted small" style="margin:.3rem 0 .6rem">Todo lo de «Disponible ahora» está implementado en esta versión.</p>'+
  '<h3>Disponible ahora · Estudiar con más claridad</h3>'+li([
   'Seis tipos de bloque con su icono y su rótulo: Teoría, Ejemplo, Fórmula, Pista, Pregunta y Retroalimentación, en los temas y en las microlecciones.',
   'En la práctica, el acierto se muestra en verde con el texto «Acierto» y la corrección, en ámbar con el texto «Explicación» o «Para revisar».'])+
@@ -2100,7 +2093,7 @@ function viewSession(){
    (s.mode==='topic'?'<button class="btn" data-act="reread">Leer la explicación otra vez</button>':'')+
    (L.ok?'':saveBtn)+'</div>';
  }
- return'<div class="sess" id="main" tabindex="-1">'+(!navigator.onLine?'<div class="banner" role="status">Sin conexión. Tu avance se guarda en este dispositivo.</div>':'')+head+body+'</div>';
+ return'<div class="sess" id="main" tabindex="-1">'+(!navigator.onLine?'<div class="banner" role="status">Sin conexión. Tu avance se guarda en este dispositivo.</div>':'')+head+(s.stage==='learn'?'':'<h1 class="sr">'+esc(card.t)+'</h1>')+body+'</div>'; // v0.003.2: título de nivel 1 solo para lectores de pantalla en práctica, reintento y explicación (la lectura ya tiene el suyo visible)
 }
 
 /* ---------- Resultado ---------- */
@@ -2195,6 +2188,32 @@ function neonSafe(){
   if(window.innerWidth<480&&cores<6)return false;
   return true;
  }catch(e){return false}
+}
+// v0.003.2: diagnóstico de dispositivo (solo con ?debug=1). Solo consola: no se guarda ni se envía. No dispara ninguna descarga.
+function diagnosticoDispositivo(){
+ const dato=f=>{try{const v=f();return v==null||v===''?'no disponible':String(v)}catch(e){return'no disponible'}};
+ const mq=q=>{try{return window.matchMedia(q).matches}catch(e){return null}};
+ const si=b=>b?'sí':'no';
+ const transp=()=>{
+  const soporta=mq('(prefers-reduced-transparency: no-preference), (prefers-reduced-transparency: reduce)');
+  if(soporta===null)return null;
+  if(!soporta)return'no soportado por el navegador';
+  return mq('(prefers-reduced-transparency: reduce)')?'reduce':'no-preference';
+ };
+ return[
+  '[Metax audit] Diagnóstico de dispositivo',
+  '  hardwareConcurrency: '+dato(()=>navigator.hardwareConcurrency),
+  '  deviceMemory: '+dato(()=>navigator.deviceMemory!=null?navigator.deviceMemory+' GB':null),
+  '  userAgent: '+dato(()=>navigator.userAgent),
+  '  pantalla (innerWidth×innerHeight): '+dato(()=>window.innerWidth+'×'+window.innerHeight),
+  '  visualViewport: '+dato(()=>{const v=window.visualViewport;return v?Math.round(v.width)+'×'+Math.round(v.height)+' (escala '+v.scale+')':null}),
+  '  prefers-reduced-transparency: '+dato(transp),
+  '  modo oscuro del sistema: '+dato(()=>{const m=mq('(prefers-color-scheme: dark)');return m===null?null:si(m)}),
+  '  neonSafe(): '+dato(()=>neonSafe()),
+  '  data-neon (atributo real tras el primer render): '+dato(()=>{const v=document.documentElement.getAttribute('data-neon');return v==null?'(sin atributo)':'"'+v+'"'}),
+  '  S.prefs.neon: '+dato(()=>S.prefs.neon),
+  '  descargas (capacidades; no se probó ninguna descarga): atributo download='+dato(()=>si('download' in document.createElement('a')))+', Blob='+dato(()=>si(typeof Blob==='function'))+', URL.createObjectURL='+dato(()=>si(typeof URL!=='undefined'&&typeof URL.createObjectURL==='function'))
+ ].join('\n');
 }
 function applyPrefs(){
  const r=document.documentElement;
@@ -2870,6 +2889,8 @@ lastRoute=route().name;
 document.querySelectorAll('[data-version]').forEach(el=>{el.textContent='v'+APP_VERSION});
 document.title='AI Metax '+APP_VERSION+' — Aprende a tu ritmo';
 render();
+// v0.003.2: el diagnóstico va DESPUÉS del primer render para leer el data-neon real
+if(METAX_DEBUG)console.log(diagnosticoDispositivo());
 </script>
 </body>
 </html>
